@@ -1,58 +1,49 @@
-import heapq
+import queue
 
 
 def AGP(func, a, b, r):
-    x = [a, b]
-    t = 1
-    M = 0
-    indM = 1
-    indNew = 1
-    z_opt_prev = min(func(a), func(b))
-    R = []
-    while x[t] - x[t-1] > 1e-4:
-        z = list(map(func, x))
+    Q = queue.PriorityQueue()
+    interval_t = (a, b, func(a), func(b))  # interval[0] = x0, interval[1] = x1, interval[2] = z0, interval[3] = z1
+    M = r * funcM(interval_t)
+    z_opt_prev = 0
+    while interval_t[1] - interval_t[0] > 1e-4:
+        x_new = (interval_t[1] + interval_t[0]) / 2 - (interval_t[3] - interval_t[2]) / (2 * M)
+        z_opt = func(x_new)
+        newIntervals = ((interval_t[0], x_new, interval_t[2], z_opt), (x_new, interval_t[1], z_opt, interval_t[3]))
 
         changedM = False
-        if indNew == indM:
-            changedM = True
-            for i in range(1, len(x)):
-                tmpM = funcM(x[i-1], x[i], z[i-1], z[i])
-                if tmpM > M:
-                    M = tmpM
-                    indM = i
-        else:
-            for i in range(indNew, indNew+2):
-                tmpM = funcM(x[i - 1], x[i], z[i - 1], z[i])
-                if tmpM > M:
-                    changedM = True
-                    M = tmpM
-                    indM = i
-        m = r * M if M > 0 else 1
+        for interval in newIntervals:
+            tmpM = r * funcM(interval)
+            if tmpM > M:
+                M = tmpM
+                changedM = True
 
-        z_opt = min(z)
-        if not changedM and z_opt == z_opt_prev:
-            R.pop(indNew-1)
-            for i in range(indNew, indNew+2):
-                tmpR = funcR(m, z_opt, x[i-1], x[i], z[i-1], z[i])
-                R.insert(i-1, tmpR)
-        else:
-            R = []
-            for i in range(1, len(x)):
-                tmpR = funcR(m, z_opt, x[i-1], x[i], z[i-1], z[i])
-                R.append(tmpR)  # heapq.heappush(R, (i, tmpR))
-        t = R.index(max(R))+1
+        if changedM or abs(z_opt - z_opt_prev) > 1e-8:
+            tmpQ = queue.PriorityQueue()
+            while not Q.empty():
+                interval = Q.get()[1]
+                tmpR = funcR(M, z_opt, interval)
+                tmpQ.put((-tmpR, interval))
+            Q = tmpQ
+        for interval in newIntervals:
+            tmpR = funcR(M, z_opt, interval)
+            Q.put((-tmpR, interval))
+
+        interval_t = Q.get()[1]
         z_opt_prev = z_opt
 
-        x_new = (x[t] + x[t-1]) / 2 - (z[t] - z[t-1]) / (2 * m)
-        x.append(x_new)
-        x.sort()
-        indNew = x.index(x_new)
-    return x
+    x = [a]
+    z = [func(a)]
+    while not Q.empty():
+        interval = Q.get()[1]
+        x.append(interval[1])
+        z.append(interval[3])
+    return x, z
 
 
-def funcM(x1, x2, z1, z2):
-    return abs((z2 - z1) / (x2 - x1))
+def funcM(interval):
+    return abs((interval[3] - interval[2]) / (interval[1] - interval[0]))
 
 
-def funcR(m, z_opt, x1, x2, z1, z2):
-    return m * (x2 - x1) + ((z2 - z1) ** 2) / (m * (x2 - x1)) - 2 * (z2 + z1 - 2 * z_opt)
+def funcR(m, z_opt, interval):
+    return m * (interval[1] - interval[0]) + ((interval[3] - interval[2]) ** 2) / (m * (interval[1] - interval[0])) - 2 * (interval[3] + interval[2] - 2 * z_opt)
