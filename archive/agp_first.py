@@ -1,8 +1,9 @@
-def AGP(func, a, b, r):
+def AGP(func, a, b, r, eps):
+    k = 0
     x = [a, b]
     pairs_x = pairs(x)
     t = 0
-    while pairs_x[t][1] - pairs_x[t][0] > 1e-4:
+    while pairs_x[t][1] - pairs_x[t][0] > eps:
         x.sort()
         z = list(map(func, x))
         pairs_x = pairs(x)
@@ -13,7 +14,9 @@ def AGP(func, a, b, r):
         t = R.index(max(R))
         x_new = (pairs_x[t][1] + pairs_x[t][0]) / 2 - (pairs_z[t][1] - pairs_z[t][0]) / (2 * m)
         x.append(x_new)
-    return x
+        k += 1
+    opt = min(map(func, x))
+    return opt, k
 
 
 def pairs(lst):
