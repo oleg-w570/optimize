@@ -1,0 +1,54 @@
+r = 2.5, eps = 0.001
+
+Grishagin 8
+Solution point: [0.948275 0.887031],
+Solution value: -11.470027413586866,
+My point: [0.93701172 0.89013672],
+My value: -11.373948804722708,
+Iteration count: 126
+--------------------------------------
+Grishagin 9
+Solution point: [0.226047 0.520153],
+Solution value: -11.414708452728043,
+My point: [9.99511719e-01 4.88281250e-04],
+My value: -8.588874790138322,
+Iteration count: 58
+--------------------------------------
+Grishagin 19
+Solution point: [0.06686 0.77051],
+Solution value: -11.080535500474621,
+My point: [0.00048828 0.00048828],
+My value: -10.769439833732116,
+Iteration count: 92
+--------------------------------------
+Grishagin 48
+Solution point: [0.884761 0.245341],
+Solution value: -9.749512015680512,
+My point: [0.87451172 0.24560547],
+My value: -9.651232027697445,
+Iteration count: 264
+--------------------------------------
+Grishagin 89
+Solution point: [0. 1.],
+Solution value: -9.816686076929269,
+My point: [0.07666016 0.80126953],
+My value: -9.446781338825334,
+Iteration count: 326
+--------------------------------------
+Grishagin 91
+Solution point: [1. 1.],
+Solution value: -10.391872038341784,
+My point: [0.00048828 0.00048828],
+My value: -9.916166346956143,
+Iteration count: 743
+--------------------------------------
+
+r = 3, eps = 0.001
+
+Grishagin 80
+Solution point: [0.146731 0.510509],
+Solution value: -10.619866023173968,
+My point: [0.14599609 0.49951172],
+My value: -10.510480203942702,
+Iteration count: 367
+--------------------------------------

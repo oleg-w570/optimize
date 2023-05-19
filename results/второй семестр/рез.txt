@@ -1,0 +1,27 @@
+Grishagin 57
+Solution point: [0.616058 0.560244],
+Solution value: -10.025094916694538,
+My point: [0.61572266 0.56005859],
+My value: -10.024997514835963,
+Iteration count: 1053
+
+Grishagin 1
+Solution point: [0.603052 0.408337],
+Solution value: -13.514478495433776,
+My point: [0.60302734 0.40869141],
+My value: -13.514286326758448,
+Iteration count: 585
+
+Grishagin 95
+Solution point: [0.877491 0.39978 ],
+Solution value: -10.349459947283654,
+My point: [0.87744141 0.39990234],
+My value: -10.349437146889167,
+Iteration count: 1646
+
+Grishagin 16
+Solution point: [0.310179 1.      ],
+Solution value: -13.277556891250205,
+My point: [0.31005859 0.99951172],
+My value: -13.265273751155766,
+Iteration count: 175

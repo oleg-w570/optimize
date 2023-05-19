@@ -1,0 +1,4 @@
+Grishagin functions, r=3, eps=0.01, number of processes=8: average solving time = 1.9832623100000006 sec.
+Grishagin functions, r=3, eps=0.01, number of processes=4: average solving time = 1.5396632099999998 sec.
+Grishagin functions, r=3, eps=0.01, number of processes=2: average solving time = 1.3896357400000001 sec.
+Grishagin functions, r=3, eps=0.01, number of processes=1: average solving time = 1.5042154899999998 sec.
