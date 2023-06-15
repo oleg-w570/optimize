@@ -10,3 +10,7 @@ class IntervalData:
 
     def __lt__(self, other):
         return self.R > other.R
+
+    def __repr__(self):
+        text = f"(R={self.R}, left={self.left.x}, right={self.right.x})"
+        return text

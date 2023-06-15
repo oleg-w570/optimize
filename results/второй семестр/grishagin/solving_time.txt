@@ -1,0 +1,35 @@
+=========================================================
+|       Grishagin functions     			|
+|       Parallel algorithm (pool)   			|
+|       r = 4, eps = 0.01       			|
+|       Number of process: 8			        |
+|       Max solving time: 3.82816300005652 sec		|
+|       Average solving time: 2.3618000269890764 sec    |
+=========================================================
+
+=========================================================
+|       Grishagin functions     			|
+|       Sequential algorithm    			|
+|       r = 4, eps = 0.01       			|
+|       Max solving time: 0.3019452001899481 sec        |
+|       Average solving time: 0.15641534098889678 sec.  |
+=========================================================
+
+=========================================================
+|       Grishagin functions     			|
+|       Parallel algorithm (mpi + pool) 		|
+|       r = 4, eps = 0.01       			|	
+|       Number of process: mpi=2, pool=4        	|
+|       Max solving time: 7.8332369001582265 sec        |
+|       Average solving time: 2.628674332995433 sec.    |
+=========================================================
+
+=========================================================
+|       Grishagin functions     			|
+|       Parallel algorithm (mpi)        		|
+|       r = 4, eps = 0.01       			|
+|       Number of process: mpi=8        		|
+|       Max solving time: 0.5436873999424279 sec        |
+|       Average solving time: 0.29648657800862566 sec.  |
+=========================================================
+

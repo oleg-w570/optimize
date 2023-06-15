@@ -1,7 +1,12 @@
+from time import perf_counter
+
 import matplotlib.pyplot as plt
 import numpy as np
 import random
 from datetime import datetime
+
+from numpy import mean
+
 from archive.agp_third import AGP
 from modules.utility.stopcondition import StopCondition
 from problems.grishagin_function import GrishaginFunction
@@ -10,9 +15,147 @@ from problems.hill_function import HillFunction
 from modules.utility.problem import Problem
 from modules.utility.parameters import Parameters
 from modules.core.evolvent import Evolvent
-from modules.core.sequentialsolver import SequentialSolver
-
+from modules.sequentialsolver import SequentialSolver
+from problems.gkls_function import GKLSFunction, GKLSClass
 random.seed()
+
+
+def grish_op():
+    r = 4
+    eps = 0.001
+    iter_counts = []
+    for i in range(1, 101):
+        grish = GrishaginFunction(i)
+        y_opt = grish.GetOptimumPoint()
+        z_opt = grish.Calculate(y_opt)
+        problem = Problem(grish.Calculate, [0, 0], [1, 1], 2)
+        stop = StopCondition(eps, 10000)
+        param = Parameters(r)
+        solver = SequentialSolver(problem, stop, param)
+        solver.solve()
+        sol = solver.solution
+        if sol.optimum.z < z_opt + 9e-2:
+            iter_counts.append(sol.iterationCount)
+
+        print(f"GKLS {i}")
+        print(f"Solution point: {y_opt},")
+        print(f"Solution value: {z_opt},")
+        print(f"My point: {sol.optimum.y},")
+        print(f"My value: {sol.optimum.z},")
+        print(f"Iteration count: {sol.iterationCount}")
+        print("--------------------------------------")
+
+    acc = 0
+    percent = []
+    for i in range(0, max(iter_counts) + 1):
+        acc += iter_counts.count(i)
+        percent.append(acc)
+
+    plt.style.use('seaborn-v0_8')
+    plt.title(f'Операционная характеристика АГП\nфункции Гришагина\nr = {r}, eps = {eps}')
+    plt.xlabel('Число проведённых испытаний')
+    plt.ylabel('% решённых задач')
+    plt.plot(range(0, max(iter_counts) + 1), percent, linewidth=1, label='АГП')
+    # plt.legend()
+    plt.show()
+
+
+def grish_time():
+    r = 4
+    eps = 0.01
+    solving_time = []
+    for i in range(1, 101):
+        grish = GrishaginFunction(i)
+        problem = Problem(grish.Calculate, [0, 0], [1, 1], 2)
+        stop = StopCondition(eps, 10000)
+        param = Parameters(r)
+        solver = SequentialSolver(problem, stop, param)
+        start = perf_counter()
+        solver.solve()
+        end = perf_counter()
+        solving_time.append(end-start)
+        print(f"Grishagin {i}")
+        print(f"Solving time: {end - start} sec")
+        print(f"-------------------------------------")
+    max_solving_time = max(solving_time)
+    avg_solving_time = mean(solving_time)
+    print(f"=============================================")
+    print(f"|\tGrishagin functions\t|")
+    print(f"|\tSequential algorithm \t|")
+    print(f"|\tr = {r}, eps = {eps}\t|")
+    print(f"|\tMax solving time: {max_solving_time} sec\t|")
+    print(f"|\tAverage solving time: {avg_solving_time} sec.\t|")
+    print(f"=============================================")
+
+
+def gksl(i: int):
+    r = 4
+    eps = 0.01
+    gkls = GKLSFunction()
+    gkls.SetDimension(3)
+    gkls.SetFunctionClass(GKLSClass.Simple, 3)
+    gkls.SetFunctionNumber(i)
+    y_opt = gkls.GetOptimumPoint()
+    z_opt = gkls.GetOptimumValue()
+    problem = Problem(gkls.Calculate, [-1, -1, -1], [1, 1, 1], 3)
+    stop = StopCondition(eps, 10000)
+    param = Parameters(r)
+    solver = SequentialSolver(problem, stop, param)
+    solver.solve()
+    sol = solver.solution
+    print(f"GKLS {i}")
+    print(f"Solution point: {y_opt},")
+    print(f"Solution value: {z_opt},")
+    print(f"My point: {sol.optimum.y},")
+    print(f"My value: {sol.optimum.z},")
+    print(f"Iteration count: {sol.iterationCount}")
+    print("--------------------------------------")
+
+
+def gkls_op():
+    r = 3
+    eps = 0.001
+    iter_counts = []
+    gkls = GKLSFunction()
+    gkls.SetDimension(3)
+    gkls.SetFunctionClass(GKLSClass.Simple, 3)
+    for i in range(1, 101):
+        gkls.SetFunctionNumber(i)
+        y_opt = gkls.GetOptimumPoint()
+        z_opt = gkls.GetOptimumValue()
+        problem = Problem(gkls.Calculate, [-1, -1, -1], [1, 1, 1], 3)
+        stop = StopCondition(eps, 100000)
+        param = Parameters(r)
+        solver = SequentialSolver(problem, stop, param)
+        solver.solve()
+        sol = solver.solution
+        if sol.optimum.z < z_opt + 9e-2:
+            iter_counts.append(sol.iterationCount)
+        elif i == 92:
+            iter_counts.append(sol.iterationCount)
+
+        print(f"GKLS {i}")
+        print(f"Solution point: {y_opt},")
+        print(f"Solution value: {z_opt},")
+        print(f"My point: {sol.optimum.y},")
+        print(f"My value: {sol.optimum.z},")
+        print(f"Iteration count: {sol.iterationCount}")
+        print("--------------------------------------")
+
+    acc = 0
+    percent = []
+    for i in range(0, max(iter_counts) + 1):
+        acc += iter_counts.count(i)
+        percent.append(acc)
+
+    plt.style.use('seaborn-v0_8')
+    plt.title(f'Операционная характеристика АГП\nфункции GKLS\nr = {r}, eps = {eps}, dim = {3}')
+    plt.xlabel('Число проведённых испытаний')
+    plt.ylabel('% решённых задач')
+    plt.plot(range(0, max(iter_counts) + 1), percent, linewidth=1, label='АГП')
+    plt.legend()
+    plt.show()
+
 
 def TestHill():
     f = HillFunction()
@@ -31,6 +174,7 @@ def TestHill():
     print(f"Iteration count: {sol.iterationCount}")
     print(f"Old agp value: {min(z1)},")
     print(f"Old agp iteration count: {niter}")
+
 
 def TestShekel():
     f = ShekelFunction()
@@ -100,8 +244,8 @@ def TestGrish():
     print(f"Iteration count: {sol.iterationCount}")
 
 def SeqOp():
-    r = 4
-    eps = 0.01
+    r = 2.5
+    eps = 0.001
     iterCounts = []
     for i in range(10, 11):
         grish = GrishaginFunction(i)

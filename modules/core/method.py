@@ -20,8 +20,6 @@ class Method:
         rx = interval.right.x
         lx = interval.left.x
         n = self.problem.dimension
-        if lx > rx:
-            print(f"lx={lx}, rx={rx}")
         return pow(rx - lx, 1 / n)
 
     @staticmethod
@@ -29,7 +27,10 @@ class Method:
         rz = interval.right.z
         lz = interval.left.z
         delta = interval.delta
-        return abs(rz - lz) / delta
+        m = abs(rz - lz) / delta
+        if m < 1e-16:
+            return 1
+        return m
 
     def CalculateR(self, interval: IntervalData) -> float:
         rz = interval.right.z
@@ -62,7 +63,7 @@ class Method:
         dif = interval.right.z - interval.left.z
         dg = 1.0 if dif > 0 else -1.0
         return 0.5 * (rx + lx) - 0.5 * dg * (abs(dif) / m) ** n / r
-    
+
     def NextPoint(self, interval: IntervalData) -> Point:
         x: float = self.NextPointCoordinate(interval)
         y = self.evolvent.GetImage(x)
@@ -71,12 +72,12 @@ class Method:
         return point
 
     def SplitIntervals(self, interval: IntervalData, point: Point) -> tuple[IntervalData, IntervalData]:
-        leftInterval = IntervalData(point)
-        leftInterval.left = interval.left
-        rightInterval = IntervalData(interval.right)
-        rightInterval.left = leftInterval.right
+        left_interval = IntervalData(point)
+        left_interval.left = interval.left
+        right_interval = IntervalData(interval.right)
+        right_interval.left = left_interval.right
 
-        leftInterval.delta = self.CalculateDelta(leftInterval)
-        rightInterval.delta = self.CalculateDelta(rightInterval)
+        left_interval.delta = self.CalculateDelta(left_interval)
+        right_interval.delta = self.CalculateDelta(right_interval)
 
-        return leftInterval, rightInterval
+        return left_interval, right_interval
