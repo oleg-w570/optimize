@@ -119,11 +119,11 @@ class Evolvent:
                         (self.upperBoundOfFloatVariables[i] - self.lowerBoundOfFloatVariables[i])
 
     # ---------------------------------
-
     def __GetYonX(self, _x: np.double) -> np.ndarray(shape=(1), dtype=np.double):
         if self.numberOfFloatVariables == 1:
             self.yValues[0] = _x - 0.5
             return self.yValues
+
 
         iu: np.narray(shape=(1), dtype=np.int32)
         iv: np.narray(shape=(1), dtype=np.int32)
@@ -134,9 +134,7 @@ class Evolvent:
         iw: np.narray(shape=(1), dtype=np.int32)
         it: np.int32
         i: np.int32
-        j: np.int32
         iis: np.double
-
         d = _x
         r = 0.5
         it = 0
@@ -317,23 +315,23 @@ class Evolvent:
             k1 = -1
             for i in range(0, n):
                 iff /= 2
-                if iis >= iff:  # исправить сравнение!
+                if iis < iff:  # исправить сравнение!
+                    k2 = -1
+                    if math.isclose(iis, (iff - 1.0)) and not math.isclose(iis, 0.0):
+                        node = i
+                        iq = 1
+                else:
                     if math.isclose(iis, iff) and not math.isclose(iis, 1.0):
                         node = i
                         iq = -1
                     iis -= iff
                     k2 = 1
-                else:
-                    k2 = -1
-                    if math.isclose(iis, (iff - 1.0)) and not math.isclose(iis, 0.0):
-                        node = i
-                        iq = 1
                 j = -k1 * k2
                 v[i] = j
                 u[i] = j
                 k1 = k2
-            v[node] = v[node] * iq
-            v[n1] = -v[n1]
+            v[node] *= iq
+            v[n1] *= -1
         return node
 
 # -----------------------------------------------------------------------------------------

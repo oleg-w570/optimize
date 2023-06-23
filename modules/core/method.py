@@ -3,8 +3,8 @@ from modules.utility.point import Point
 from modules.utility.problem import Problem
 from archive.parameters import Parameters
 from modules.utility.intervaldata import IntervalData
-from modules.core.evolvent import Evolvent
-
+# from modules.core.evolvent import Evolvent
+from c_implementation.myevolvent import Evolvent
 
 class Method:
     def __init__(self,

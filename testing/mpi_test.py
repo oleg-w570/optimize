@@ -30,9 +30,9 @@ def grish_time():
         if rank == 0:
             end = perf_counter()
             all_solving_time.append(end - start)
-            print(f"Grishagin {i}")
-            print(f"Solving time: {end - start} sec")
-            print(f"-------------------------------------")
+            # print(f"Grishagin {i}")
+            # print(f"Solving time: {end - start} sec")
+            # print(f"-------------------------------------")
     if rank == 0:
         max_solving_time = max(all_solving_time)
         avg_solving_time = mean(all_solving_time)
@@ -117,6 +117,41 @@ def gkls(i: int):
         print(f"MPI Process: {MPI.COMM_WORLD.size}")
         print("--------------------------------------")
 
+def gkls_time():
+    rank = MPI.COMM_WORLD.rank
+    r = 4
+    eps = 0.01
+    gkls = GKLSFunction()
+    gkls.SetDimension(3)
+    gkls.SetFunctionClass(GKLSClass.Simple, 3)
+    if rank == 0:
+        all_solving_time = []
+    for i in range(1, 101):
+        gkls.SetFunctionNumber(i)
+        problem = Problem(gkls.Calculate, [-1, -1, -1], [1, 1, 1], 3)
+        stop = StopCondition(eps, 100000)
+        param = Parameters(r)
+        solver = MPISolver(problem, stop, param)
+        if rank == 0:
+            start = perf_counter()
+        solver.solve()
+        if rank == 0:
+            end = perf_counter()
+            all_solving_time.append(end - start)
+            # print(f"Grishagin {i}")
+            # print(f"Solving time: {end - start} sec")
+            # print(f"-------------------------------------")
+    if rank == 0:
+        max_solving_time = max(all_solving_time)
+        avg_solving_time = mean(all_solving_time)
+        print(f"============================================================")
+        print(f"|\tGKLS functions\t|")
+        print(f"|\tParallel algorithm (mpi)\t|")
+        print(f"|\tr = {r}, eps = {eps}\t|")
+        print(f"|\tNumber of process: mpi={MPI.COMM_WORLD.size}\t|")
+        print(f"|\tMax solving time: {max_solving_time} sec\t|")
+        print(f"|\tAverage solving time: {avg_solving_time} sec.\t|")
+        print(f"============================================================")
 
 def grishagin(k: int):
     grish = GrishaginFunction(k)

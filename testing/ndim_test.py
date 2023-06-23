@@ -22,7 +22,7 @@ random.seed()
 
 def grish_op():
     r = 4
-    eps = 0.001
+    eps = 0.01
     iter_counts = []
     for i in range(1, 101):
         grish = GrishaginFunction(i)
@@ -111,6 +111,35 @@ def gksl(i: int):
     print(f"Iteration count: {sol.iterationCount}")
     print("--------------------------------------")
 
+def gkls_time():
+    r = 4
+    eps = 0.001
+    solving_time = []
+    gkls = GKLSFunction()
+    gkls.SetDimension(3)
+    gkls.SetFunctionClass(GKLSClass.Simple, 3)
+    for i in range(1, 101):
+        gkls.SetFunctionNumber(i)
+        problem = Problem(gkls.Calculate, [-1, -1, -1], [1, 1, 1], 3)
+        stop = StopCondition(eps, 100000)
+        param = Parameters(r)
+        solver = SequentialSolver(problem, stop, param)
+        start = perf_counter()
+        solver.solve()
+        end = perf_counter()
+        solving_time.append(end-start)
+        print(f"GKLS {i}")
+        print(f"Solving time: {end - start} sec")
+        print(f"-------------------------------------")
+    max_solving_time = max(solving_time)
+    avg_solving_time = mean(solving_time)
+    print(f"=============================================")
+    print(f"|\tGKLS functions\t|")
+    print(f"|\tSequential algorithm \t|")
+    print(f"|\tr = {r}, eps = {eps}\t|")
+    print(f"|\tMax solving time: {max_solving_time} sec\t|")
+    print(f"|\tAverage solving time: {avg_solving_time} sec.\t|")
+    print(f"=============================================")
 
 def gkls_op():
     r = 3

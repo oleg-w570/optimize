@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from queue import PriorityQueue
-from time import perf_counter
 
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
