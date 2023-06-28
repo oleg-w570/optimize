@@ -1,26 +1,29 @@
-import math
 from modules.utility.point import Point
 from modules.utility.problem import Problem
-from archive.parameters import Parameters
+from modules.utility.parameters import Parameters
 from modules.utility.intervaldata import IntervalData
-# from modules.core.evolvent import Evolvent
-from c_implementation.myevolvent import Evolvent
+
+from modules.evolvent.evolvent import Evolvent
+# from modules.evolvent.ctypes.evolvent import Evolvent
+# from evolvent_c import Evolvent
+
 
 class Method:
     def __init__(self,
                  problem: Problem,
                  parameters: Parameters):
         self.problem: Problem = problem
-        self.evolvent: Evolvent = Evolvent(problem.lowerBound, problem.upperBound, problem.dimension)
+        self.evolvent: Evolvent = Evolvent(problem.lowerBound, problem.upperBound, problem.dimension,
+                                           parameters.evolvent_density)
         self.r: float = parameters.r
         self.m: float = 1
-        self.optimum: float = math.inf
+        self.optimum: float = float('inf')
 
     def CalculateDelta(self, interval: IntervalData):
         rx = interval.right.x
         lx = interval.left.x
         n = self.problem.dimension
-        return pow(rx - lx, 1 / n)
+        return (rx - lx) ** (1 / n)
 
     @staticmethod
     def CalculateM(interval: IntervalData) -> float:

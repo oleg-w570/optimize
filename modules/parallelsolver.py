@@ -11,11 +11,10 @@ class ParallelSolver(Solver):
         self.FirstIteration()
         mindelta: float = float('inf')
         iteration_count: int = 0
-        time = []
-        with multiprocessing.Pool(self.numberOfProcess) as pool:
+        with multiprocessing.Pool(self.num_proc) as pool:
             while mindelta > self.stop.eps and iteration_count < self.stop.maxiter:
                 intervalt: list[IntervalData] = []
-                for _ in range(self.numberOfProcess):
+                for _ in range(self.num_proc):
                     if not self.Q.empty():
                         intervalt.append(self.Q.get())
                 mindelta = min(intervalt, key=(lambda x: x.delta)).delta

@@ -16,7 +16,7 @@ class Solver(ABC):
                  stopcondition: StopCondition = StopCondition(),
                  parameters: Parameters = Parameters()):
         self.method: Method = Method(problem, parameters)
-        self.numberOfProcess = parameters.processCount
+        self.num_proc = parameters.process_count
         self.stop: StopCondition = stopcondition
         self.Q = PriorityQueue()
         self.recalc = True

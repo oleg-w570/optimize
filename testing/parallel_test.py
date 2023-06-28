@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 
 
 def gksl(i: int):
-    n = 2
-    r = 3
+    n = 8
+    r = 4
     eps = 0.01
     gkls = GKLSFunction()
     gkls.SetDimension(3)

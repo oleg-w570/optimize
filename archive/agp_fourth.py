@@ -6,7 +6,7 @@ from modules.utility.problem import Problem
 from archive.solution import Solution
 from archive.parameters import Parameters
 from archive.interval import IntervalData
-from modules.core.evolvent import Evolvent
+from modules.core.evolvent_ import Evolvent
 
 
 class SequentialSolver(Solver):

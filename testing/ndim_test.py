@@ -14,7 +14,6 @@ from problems.shekel_function import ShekelFunction
 from problems.hill_function import HillFunction
 from modules.utility.problem import Problem
 from modules.utility.parameters import Parameters
-from modules.core.evolvent import Evolvent
 from modules.sequentialsolver import SequentialSolver
 from problems.gkls_function import GKLSFunction, GKLSClass
 random.seed()
@@ -113,7 +112,7 @@ def gksl(i: int):
 
 def gkls_time():
     r = 4
-    eps = 0.001
+    eps = 0.01
     solving_time = []
     gkls = GKLSFunction()
     gkls.SetDimension(3)

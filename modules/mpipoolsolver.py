@@ -18,11 +18,11 @@ class MpiPoolSolver(Solver):
         mindelta = float('inf')
         niter = 0
 
-        with multiprocessing.Pool(self.numberOfProcess) as pool:
+        with multiprocessing.Pool(self.num_proc) as pool:
             while mindelta > self.stop.eps and niter < self.stop.maxiter:
                 if rank == 0:
                     all_intervalt = []
-                    for _ in range(size * self.numberOfProcess):
+                    for _ in range(size * self.num_proc):
                         if not self.Q.empty():
                             all_intervalt.append(self.Q.get())
                     step = len(all_intervalt) // size
@@ -62,8 +62,8 @@ class MpiPoolSolver(Solver):
             self._solution.accuracy = mindelta
             self._solution.iterationCount = niter
 
-    def SequentialIterationsForBegin(self, numberOfIteration: int):
-        for _ in range(numberOfIteration):
+    def SequentialIterationsForBegin(self, number_iterations: int):
+        for _ in range(number_iterations):
             intervalt: IntervalData = self.Q.get()
             trial: Point = self.method.NextPoint(intervalt)
             new_intervals = self.method.SplitIntervals(intervalt, trial)

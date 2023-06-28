@@ -15,7 +15,7 @@ class Evolvent:
     :type  evolventDensity: int
     """
 
-    lib = CDLL('C:/scientific-work/c_implementation/evolvent_lib/build/release/bin/libevolvent.dll')
+    lib = CDLL('modules/evolvent/ctypes/lib/evolvent.dll')
 
     def __init__(self,
                  lowerBoundOfFloatVariables: np.ndarray(shape=(1), dtype=np.double) = [],
@@ -29,12 +29,10 @@ class Evolvent:
         self.upperBoundOfFloatVariables = np.copy(upperBoundOfFloatVariables)
         self.evolventDensity = evolventDensity
 
-        self.nexpExtended: np.double = 2 ** self.numberOfFloatVariables
-
         self.yValues = np.zeros(self.numberOfFloatVariables, dtype=np.double)
 
-        Evolvent.lib.getYonX.argtypes = [c_double, np.ctypeslib.ndpointer(np.double, ndim=1, flags='C'), c_size_t,
-                                         c_double, c_int]
+        Evolvent.lib.getYonX.argtypes = [np.ctypeslib.ndpointer(np.double, ndim=1, flags='C'), c_size_t,
+                                         c_int, c_double]
 
     def GetImage(self,
                  x: np.double
@@ -58,7 +56,7 @@ class Evolvent:
             return self.yValues
 
         self.yValues = np.zeros(self.numberOfFloatVariables, dtype=np.double)
-        Evolvent.lib.getYonX(x, self.yValues, self.numberOfFloatVariables, self.nexpExtended, self.evolventDensity)
+        Evolvent.lib.getYonX(self.yValues, self.numberOfFloatVariables, self.evolventDensity, x)
         return np.copy(self.yValues)
 
     def __TransformP2D(self):
