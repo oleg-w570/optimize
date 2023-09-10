@@ -1,5 +1,4 @@
 import numpy as np
-import math
 from problems.gkls_random import GKLSRandomGenerator
 
 
@@ -50,8 +49,8 @@ class T_GKLS_Minima:
         #    minimum within attraction regions *#
         #    of local minimizer(i)
         #    *#
-        rho = np.zeros(1, dtype=np.double)  # list of attraction regions radii *#
-        local_min = np.zeros((1, 1), dtype=np.double)  # list of local minimizers coordinates *#
+        np.zeros(1, dtype=np.double)  # list of attraction regions radii *#
+        np.zeros((1, 1), dtype=np.double)  # list of local minimizers coordinates *#
 
 
 class T_GKLS_GlobalMinima:
@@ -301,7 +300,7 @@ class GKLSFunction:
         self.mFunctionNumber = number
         if self.mIsGeneratorMemoryAllocated:
             self.GKLS_free()
-        err_code = self.GKLS_arg_generate(number)
+        self.GKLS_arg_generate(number)
 
     def GKLS_arg_generate(self, nf):
         i = 0
@@ -480,7 +479,6 @@ class GKLSFunction:
         return GKLSFunction.GKLS_OK  # no errors #
 
     def GKLS_alloc(self):
-        i = 0
 
         if ((self.GKLS_dim <= 1) or (self.GKLS_dim >= GKLSRandomGenerator.NUM_RND)):
             return GKLSFunction.GKLS_DIM_ERROR  # problem dimension error #

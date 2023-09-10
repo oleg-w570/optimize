@@ -1,5 +1,4 @@
 from typing import Callable, List
-import numpy as np
 
 class Problem:
     def __init__(self,

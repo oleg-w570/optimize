@@ -67,7 +67,7 @@ def gkls_op():
             print(f"Accuracy: {sol.accuracy}")
             print(f"Iteration count: {sol.iterationCount}")
             print(f"Number of processes: {n}")
-            print(f"-------------------------------------")
+            print("-------------------------------------")
         acc = 0
         percent = []
         for i in range(0, max(all_iters) + 1):
@@ -92,7 +92,7 @@ def grishagin():
 
     problem = Problem(grish.Calculate, [0, 0], [1, 1], 2)
     stop = StopCondition(0.01, 1000)
-    param = Parameters(2.5, n)
+    Parameters(2.5, n)
     solver = ParallelSolver(problem, stop)
     solver.solve()
     sol = solver.solution
@@ -137,7 +137,7 @@ def grish_op():
             print(f"Accuracy: {sol.accuracy}")
             print(f"Iteration count: {sol.iterationCount}")
             print(f"Number of processes: {n}")
-            print(f"-------------------------------------")
+            print("-------------------------------------")
         acc = 0
         percent = []
         for i in range(0, max(all_iters)+1):
@@ -170,14 +170,14 @@ def grish_time():
 
         print(f"Grishagin {i}")
         print(f"Solving time: {end - start} sec")
-        print(f"-------------------------------------")
+        print("-------------------------------------")
     max_solving_time = max(all_solving_time)
     avg_solving_time = mean(all_solving_time)
-    print(f"=============================================")
-    print(f"|\tGrishagin functions\t|")
-    print(f"|\tParallel algorithm (pool)\t|")
+    print("=============================================")
+    print("|\tGrishagin functions\t|")
+    print("|\tParallel algorithm (pool)\t|")
     print(f"|\tr = {r}, eps = {eps}\t|")
     print(f"|\tNumber of process: {n}\t|")
     print(f"|\tMax solving time: {max_solving_time} sec\t|")
     print(f"|\tAverage solving time: {avg_solving_time} sec.\t|")
-    print(f"=============================================")
+    print("=============================================")

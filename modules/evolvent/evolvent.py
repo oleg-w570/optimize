@@ -252,7 +252,6 @@ class Evolvent:
         i = 0
         k1 = -1
         k2 = 0
-        l1 = 0
         node = 0
         iis: np.double
         iff: np.double

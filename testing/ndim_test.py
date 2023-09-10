@@ -75,16 +75,16 @@ def grish_time():
         solving_time.append(end-start)
         print(f"Grishagin {i}")
         print(f"Solving time: {end - start} sec")
-        print(f"-------------------------------------")
+        print("-------------------------------------")
     max_solving_time = max(solving_time)
     avg_solving_time = mean(solving_time)
-    print(f"=============================================")
-    print(f"|\tGrishagin functions\t|")
-    print(f"|\tSequential algorithm \t|")
+    print("=============================================")
+    print("|\tGrishagin functions\t|")
+    print("|\tSequential algorithm \t|")
     print(f"|\tr = {r}, eps = {eps}\t|")
     print(f"|\tMax solving time: {max_solving_time} sec\t|")
     print(f"|\tAverage solving time: {avg_solving_time} sec.\t|")
-    print(f"=============================================")
+    print("=============================================")
 
 
 def gksl(i: int):
@@ -129,16 +129,16 @@ def gkls_time():
         solving_time.append(end-start)
         print(f"GKLS {i}")
         print(f"Solving time: {end - start} sec")
-        print(f"-------------------------------------")
+        print("-------------------------------------")
     max_solving_time = max(solving_time)
     avg_solving_time = mean(solving_time)
-    print(f"=============================================")
-    print(f"|\tGKLS functions\t|")
-    print(f"|\tSequential algorithm \t|")
+    print("=============================================")
+    print("|\tGKLS functions\t|")
+    print("|\tSequential algorithm \t|")
     print(f"|\tr = {r}, eps = {eps}\t|")
     print(f"|\tMax solving time: {max_solving_time} sec\t|")
     print(f"|\tAverage solving time: {avg_solving_time} sec.\t|")
-    print(f"=============================================")
+    print("=============================================")
 
 def gkls_op():
     r = 3

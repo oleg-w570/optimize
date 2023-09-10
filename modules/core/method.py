@@ -13,7 +13,8 @@ class Method:
                  problem: Problem,
                  parameters: Parameters):
         self.problem: Problem = problem
-        self.evolvent: Evolvent = Evolvent(problem.lowerBound, problem.upperBound, problem.dimension,
+        self.evolvent: Evolvent = Evolvent(problem.lowerBound, problem.upperBound, 
+                                           problem.dimension, 
                                            parameters.evolvent_density)
         self.r: float = parameters.r
         self.m: float = 1

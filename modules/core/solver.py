@@ -64,7 +64,7 @@ class Solver(ABC):
     @property
     def solution(self):
         intervals = self.Q.queue
-        points = map(lambda interval: interval.right, intervals)
+        points = list(map(lambda interval: interval.right, intervals))
         self._solution.trials = points
         self._solution.optimum = min(points)
         return self._solution
