@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from mpi4py import MPI
 from numpy import mean
 
-from modules.mpipoolsolver import MpiPoolSolver
+from modules.mpi_pool_solver import MpiPoolSolver
 from modules.utility.parameters import Parameters
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition

@@ -2,7 +2,7 @@ from time import perf_counter
 
 from numpy import mean
 
-from modules.parallelsolver import ParallelSolver
+from modules.parallel_solver import ParallelSolver
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
 from modules.utility.parameters import Parameters

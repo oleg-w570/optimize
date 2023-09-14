@@ -8,7 +8,7 @@ from modules.core.solver import Solver
 
 class ParallelSolver(Solver):
     def solve(self):
-        self.FirstIteration()
+        self.first_iteration()
         mindelta: float = float('inf')
         iteration_count: int = 0
         with multiprocessing.Pool(self.num_proc) as pool:
@@ -19,14 +19,14 @@ class ParallelSolver(Solver):
                         intervalt.append(self.Q.get())
                 mindelta = min(intervalt, key=(lambda x: x.delta)).delta
 
-                trial: list[Point] = pool.map(self.method.NextPoint, intervalt)
-                new_intervals = pool.starmap(self.method.SplitIntervals, zip(intervalt, trial))
+                trial: list[Point] = pool.map(self.method.next_point, intervalt)
+                new_intervals = pool.starmap(self.method.split_interval, zip(intervalt, trial))
                 new_intervals = list(chain.from_iterable(new_intervals))
-                newm: list[float] = pool.map(self.method.CalculateM, new_intervals)
-                self.UpdateM(max(newm))
-                self.UpdateOptimum(min(trial))
-                self.ReCalculate()
-                new_r: list[float] = pool.map(self.method.CalculateR, new_intervals)
+                newm: list[float] = pool.map(self.method.calculate_m, new_intervals)
+                self.update_m(max(newm))
+                self.update_optimum(min(trial))
+                self.re_calculate()
+                new_r: list[float] = pool.map(self.method.calculate_r, new_intervals)
                 for interval, R in zip(new_intervals, new_r):
                     interval.R = R
                     self.Q.put(interval)

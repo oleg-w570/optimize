@@ -12,7 +12,7 @@ class MpiPoolSolver(Solver):
         size = comm.Get_size()
         rank = comm.Get_rank()
 
-        self.FirstIteration()
+        self.first_iteration()
         self.SequentialIterationsForBegin(size-1)
 
         mindelta = float('inf')
@@ -34,24 +34,24 @@ class MpiPoolSolver(Solver):
                 loc_mindelta: float = min(loc_intervalt, key=(lambda x: x.delta)).delta
                 mindelta = comm.allreduce(loc_mindelta, MPI.MIN)
 
-                loc_trials: list[Point] = pool.map(self.method.NextPoint, loc_intervalt)
+                loc_trials: list[Point] = pool.map(self.method.next_point, loc_intervalt)
                 loc_mintrial: Point = min(loc_trials)
                 mintrial: Point = comm.allreduce(loc_mintrial, MPI.MIN)
-                self.UpdateOptimum(mintrial)
+                self.update_optimum(mintrial)
 
-                loc_new_intervals = pool.starmap(self.method.SplitIntervals, zip(loc_intervalt, loc_trials))
+                loc_new_intervals = pool.starmap(self.method.split_interval, zip(loc_intervalt, loc_trials))
                 loc_new_intervals = list(chain.from_iterable(loc_new_intervals))
                 all_new_intervals = comm.gather(loc_new_intervals, 0)
 
-                loc_new_m: list[float] = pool.map(self.method.CalculateM, loc_new_intervals)
+                loc_new_m: list[float] = pool.map(self.method.calculate_m, loc_new_intervals)
                 loc_max_m: float = max(loc_new_m)
                 maxm: float = comm.allreduce(loc_max_m, MPI.MAX)
-                self.UpdateM(maxm)
+                self.update_m(maxm)
 
-                loc_new_r: list[float] = pool.map(self.method.CalculateR, loc_new_intervals)
+                loc_new_r: list[float] = pool.map(self.method.calculate_r, loc_new_intervals)
                 all_new_r: list[list[float]] = comm.gather(loc_new_r, 0)
                 if rank == 0:
-                    self.ReCalculate()
+                    self.re_calculate()
                     all_new_intervals = list(chain.from_iterable(all_new_intervals))
                     all_new_r = list(chain.from_iterable(all_new_r))
 
@@ -65,13 +65,13 @@ class MpiPoolSolver(Solver):
     def SequentialIterationsForBegin(self, number_iterations: int):
         for _ in range(number_iterations):
             intervalt: IntervalData = self.Q.get()
-            trial: Point = self.method.NextPoint(intervalt)
-            new_intervals = self.method.SplitIntervals(intervalt, trial)
-            new_m = map(self.method.CalculateM, new_intervals)
-            self.UpdateM(max(new_m))
-            self.UpdateOptimum(trial)
-            self.ReCalculate()
-            new_r = map(self.method.CalculateR, new_intervals)
-            new_intervals = map(self.ChangeR, new_intervals, new_r)
+            trial: Point = self.method.next_point(intervalt)
+            new_intervals = self.method.split_interval(intervalt, trial)
+            new_m = map(self.method.calculate_m, new_intervals)
+            self.update_m(max(new_m))
+            self.update_optimum(trial)
+            self.re_calculate()
+            new_r = map(self.method.calculate_r, new_intervals)
+            new_intervals = map(self.change_r, new_intervals, new_r)
             for interval in new_intervals:
                 self.Q.put_nowait(interval)

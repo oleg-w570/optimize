@@ -16,14 +16,14 @@ class SequentialSolver(Solver):
         self.problem: Problem = problem
         self.param: Parameters = parameters
         self.solution: Solution = Solution()
-        self.evolvent: Evolvent = Evolvent(problem.lowerBound, problem.upperBound, problem.dimension)
+        self.evolvent: Evolvent = Evolvent(problem.lower_bound, problem.upper_bound, problem.dim)
         self.Q = queue.PriorityQueue()
         self.m: float = 1
 
     def CalculateDelta(self, interval: IntervalData):
         rx = interval.x
         lx = interval.leftInterval.x
-        return pow(rx - lx, 1 / self.problem.dimension)
+        return pow(rx - lx, 1 / self.problem.dim)
 
     @staticmethod
     def CalculateM(interval: IntervalData) -> float:
@@ -44,11 +44,11 @@ class SequentialSolver(Solver):
     def getSolution(self) -> Solution:
         return self.solution
 
-    def FirstIteration(self):
+    def first_iteration(self):
         lx = 0.0
         rx = 1.0
-        ly = self.evolvent.GetImage(lx)
-        ry = self.evolvent.GetImage(rx)
+        ly = self.evolvent.get_image(lx)
+        ry = self.evolvent.get_image(rx)
         rz = self.problem.f(ry)
         lz = self.problem.f(ly)
 
@@ -65,7 +65,7 @@ class SequentialSolver(Solver):
         lx = interval.leftInterval.x
         m = self.m
         r = self.param.r
-        n = self.problem.dimension
+        n = self.problem.dim
         dif = interval.z - interval.leftInterval.z
         dg = 1.0 if dif > 0 else -1.0
         return 0.5 * (rx + lx) - 0.5 * dg * (abs(dif) / m) ** n / r
@@ -83,7 +83,7 @@ class SequentialSolver(Solver):
 
     def Finalize(self, interval_t: IntervalData):
         x = self.NextPoint(interval_t)
-        y = self.evolvent.GetImage(x)
+        y = self.evolvent.get_image(x)
         z = self.problem.f(y)
         lastIntervals = self.SplitInterval(interval_t, y, x, z)
         for interval in lastIntervals:
@@ -98,12 +98,12 @@ class SequentialSolver(Solver):
             self.solution.trialValues.append(trial.z)
 
     def solve(self):
-        self.FirstIteration()
+        self.first_iteration()
         interval_t: IntervalData = self.Q.get()
 
         while interval_t.delta > self.param.eps:
             x = self.NextPoint(interval_t)
-            y = self.evolvent.GetImage(x)
+            y = self.evolvent.get_image(x)
             z = self.problem.f(y)
             newIntervals = self.SplitInterval(interval_t, y, x, z)
 

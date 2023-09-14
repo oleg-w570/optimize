@@ -10,7 +10,8 @@ __pycache__/
 .Python
 .idea/
 .vscode/
-.ruff-cache/
+.ruff_cache/
+.fleet/
 build/
 develop-eggs/
 dist/

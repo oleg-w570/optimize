@@ -14,7 +14,7 @@ from problems.shekel_function import ShekelFunction
 from problems.hill_function import HillFunction
 from modules.utility.problem import Problem
 from modules.utility.parameters import Parameters
-from modules.sequentialsolver import SequentialSolver
+from modules.sequential_solver import SequentialSolver
 from problems.gkls_function import GKLSFunction, GKLSClass
 random.seed()
 
@@ -227,8 +227,8 @@ def TestEvolvent():
     evolvent = Evolvent([0, 0], [1, 1], 2, 35)
     lx = 0.0
     rx = 1.0
-    ly = evolvent.GetImage(lx)
-    ry = evolvent.GetImage(rx)
+    ly = evolvent.get_image(lx)
+    ry = evolvent.get_image(rx)
     print(ly, ry)
 
 
