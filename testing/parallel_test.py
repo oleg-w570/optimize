@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 
 def gksl(i: int):
-    n = 8
+    n = 4
     r = 4
     eps = 0.01
     gkls = GKLSFunction()

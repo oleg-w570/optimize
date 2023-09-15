@@ -23,8 +23,8 @@ class MpiPoolSolver(Solver):
                 if rank == 0:
                     all_intervalt = []
                     for _ in range(size * self.num_proc):
-                        if not self.Q.empty():
-                            all_intervalt.append(self.Q.get())
+                        if not self.intrvls_queue.empty():
+                            all_intervalt.append(self.intrvls_queue.get())
                     step = len(all_intervalt) // size
                     all_intervalt = [all_intervalt[i:i+step] for i in range(0, len(all_intervalt), step)]
                 else:
@@ -51,27 +51,27 @@ class MpiPoolSolver(Solver):
                 loc_new_r: list[float] = pool.map(self.method.calculate_r, loc_new_intervals)
                 all_new_r: list[list[float]] = comm.gather(loc_new_r, 0)
                 if rank == 0:
-                    self.re_calculate()
+                    self.recalculate()
                     all_new_intervals = list(chain.from_iterable(all_new_intervals))
                     all_new_r = list(chain.from_iterable(all_new_r))
 
                     for interval, R in zip(all_new_intervals, all_new_r):
                         interval.R = R
-                        self.Q.put(interval)
+                        self.intrvls_queue.put(interval)
                 niter += 1
             self._solution.accuracy = mindelta
             self._solution.iterationCount = niter
 
     def SequentialIterationsForBegin(self, number_iterations: int):
         for _ in range(number_iterations):
-            intervalt: IntervalData = self.Q.get()
+            intervalt: IntervalData = self.intrvls_queue.get()
             trial: Point = self.method.next_point(intervalt)
             new_intervals = self.method.split_interval(intervalt, trial)
             new_m = map(self.method.calculate_m, new_intervals)
             self.update_m(max(new_m))
             self.update_optimum(trial)
-            self.re_calculate()
+            self.recalculate()
             new_r = map(self.method.calculate_r, new_intervals)
             new_intervals = map(self.change_r, new_intervals, new_r)
             for interval in new_intervals:
-                self.Q.put_nowait(interval)
+                self.intrvls_queue.put_nowait(interval)
