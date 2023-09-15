@@ -22,6 +22,16 @@ class Method:
         self.m: float = 1
         self.optimum: float = float('inf')
 
+    def update_m(self, m: float) -> bool:
+        is_update = m > self.m
+        self.m = m if is_update else self.m
+        return is_update        
+
+    def update_optimum(self, point: Point) -> bool:
+        is_update = point.z < self.optimum
+        self.optimum = point.z if is_update else self.optimum
+        return is_update
+
     def calculate_delta(self, interval: IntervalData) -> float:
         rx = interval.right.x
         lx = interval.left.x

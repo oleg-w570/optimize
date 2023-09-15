@@ -18,7 +18,7 @@ class Solver(ABC):
         self.method: Method = Method(problem, parameters)
         self.num_proc: int = parameters.process_count
         self.stop: StopCondition = stopcondition
-        self.Q = PriorityQueue()
+        self.intrvls_queue = PriorityQueue()
         self.recalc = True
         self._solution: Solution = Solution()
 
@@ -28,42 +28,30 @@ class Solver(ABC):
 
     def first_iteration(self):
         lpoint, rpoint = self.method.first_points()
-        phantom_interval = IntervalData(lpoint)
         first_interval = IntervalData(rpoint)
-        first_interval.left = phantom_interval.right
+        first_interval.left = lpoint
         first_interval.delta = self.method.calculate_delta(first_interval)
         self.method.m = self.method.calculate_m(first_interval)
-        self.Q.put_nowait(first_interval)
+        self.intrvls_queue.put_nowait(first_interval)
 
-    def re_calculate(self) -> None:
+    def recalculate(self) -> None:
         if self.recalc:
-            old_intervals = self.Q.queue
+            old_intervals = self.intrvls_queue.queue
             new_r = map(self.method.calculate_r, old_intervals)
             new_intervals = list(map(self.change_r, old_intervals, new_r))
-            self.Q.queue.clear()
+            self.intrvls_queue.queue.clear()
             for interval in new_intervals:
-                self.Q.put_nowait(interval)
+                self.intrvls_queue.put_nowait(interval)
             self.recalc = False
 
     @staticmethod
     def change_r(interval: IntervalData, r: float) -> IntervalData:
-        interval.R = r
+        interval.r = r
         return interval
-
-    def update_m(self, m: float) -> None:
-        if m > self.method.m:
-            self.method.m = m
-            self.recalc = True
-
-    def update_optimum(self, point: Point) -> None:
-        z = point.z
-        if z < self.method.optimum:
-            self.method.optimum = z
-            self.recalc = True
 
     @property
     def solution(self):
-        intervals = self.Q.queue
+        intervals = self.intrvls_queue.queue
         points = list(map(lambda interval: interval.right, intervals))
         self._solution.trials = points
         self._solution.optimum = min(points)
