@@ -10,7 +10,7 @@ def worker(input: Queue, output: Queue):
         left_intrvl = [intrvl[1][0], point]
         right_intrvl = [point, intrvl[1][1]]
         sleep(random.randint(0, 1))
-        print(f'\t{current_process().name} calculated intervals {left_intrvl} and {right_intrvl}')
+        # print(f'\t{current_process().name} calculated intervals {left_intrvl} and {right_intrvl}')
         output.put((random.randint(0, 100), left_intrvl))
         output.put((random.randint(0, 100), right_intrvl))
 

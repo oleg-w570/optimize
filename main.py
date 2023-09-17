@@ -1,7 +1,9 @@
-import testing.parallel_test as parallel
-import testing.ndim_test as seq
+import testing.async_test as asnc
+# import testing.ndim_test as seq
 
 if __name__ == '__main__':
+    # asnc.gkls_time()
+    asnc.gksl(22)
     # mpi.grish_time()
     # mpi.gkls(24)
     # mpi.grish_op()
@@ -12,7 +14,7 @@ if __name__ == '__main__':
     # mpipool.gkls_op()
     # mpipool.grish_time()
     # seq.gkls_op()
-    seq.gksl(22)
+    # seq.gksl(22)
     # seq.grish_op()
     # seq.grish_time()
     # seq.gkls_time()

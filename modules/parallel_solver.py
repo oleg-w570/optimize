@@ -27,13 +27,13 @@ class ParallelSolver(Solver):
                 new_intrvls = pool.map(self.method.split_interval, old_intrvls, points)
                 new_intrvls = list(chain.from_iterable(new_intrvls))
 
-                new_m: list[float] = pool.map(self.method.lipschitz_constant, new_intervals)
+                new_m: list[float] = pool.map(self.method.lipschitz_const, new_intrvls)
                 self.recalc |= self.method.update_m(max(new_m))
                 self.recalc |= self.method.update_optimum(min(points))
                 self.recalculate()
 
-                new_r: list[float] = pool.map(self.method.characteristic, new_intervals)
-                for interval, r in zip(new_intervals, new_r):
+                new_r: list[float] = pool.map(self.method.characteristic, new_intrvls)
+                for interval, r in zip(new_intrvls, new_r):
                     interval.r = r
                     self.intrvls_queue.put_nowait(interval)
                 niter += 1

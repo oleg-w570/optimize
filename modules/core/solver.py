@@ -6,7 +6,6 @@ from modules.utility.stopcondition import StopCondition
 from modules.utility.parameters import Parameters
 from modules.utility.solution import Solution
 from modules.utility.intervaldata import IntervalData
-from modules.utility.point import Point
 from modules.core.method import Method
 
 
@@ -31,7 +30,7 @@ class Solver(ABC):
         first_interval = IntervalData(rpoint)
         first_interval.left = lpoint
         first_interval.delta = self.method.delta(first_interval)
-        self.method.m = self.method.lipschitz_constant(first_interval)
+        self.method.m = self.method.lipschitz_const(first_interval)
         self.intrvls_queue.put_nowait(first_interval)
 
     def recalculate(self) -> None:

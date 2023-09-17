@@ -43,7 +43,7 @@ class MpiPoolSolver(Solver):
                 loc_new_intervals = list(chain.from_iterable(loc_new_intervals))
                 all_new_intervals = comm.gather(loc_new_intervals, 0)
 
-                loc_new_m: list[float] = pool.map(self.method.lipschitz_constant, loc_new_intervals)
+                loc_new_m: list[float] = pool.map(self.method.lipschitz_const, loc_new_intervals)
                 loc_max_m: float = max(loc_new_m)
                 maxm: float = comm.allreduce(loc_max_m, MPI.MAX)
                 self.update_m(maxm)
@@ -67,7 +67,7 @@ class MpiPoolSolver(Solver):
             intervalt: IntervalData = self.intrvls_queue.get()
             trial: Point = self.method.next_point(intervalt)
             new_intervals = self.method.split_interval(intervalt, trial)
-            new_m = map(self.method.lipschitz_constant, new_intervals)
+            new_m = map(self.method.lipschitz_const, new_intervals)
             self.update_m(max(new_m))
             self.update_optimum(trial)
             self.recalculate()
