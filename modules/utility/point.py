@@ -1,7 +1,7 @@
 class Point:
     def __init__(self,
                  x: float,
-                 y,
+                 y: list[float],
                  z: float):
         self.x = x
         self.y = y

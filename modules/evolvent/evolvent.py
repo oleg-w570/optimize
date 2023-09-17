@@ -1,73 +1,45 @@
-import numpy as np
 import math
 
 
 class Evolvent:
-    """Класс разверток
-
-    :param lower_bound: массив для левых (нижних) границ, А.
-    :type  lower_bound: np.ndarray(shape = (1), dtype = np.double).
-    :param upper_bound: массив для правых (верхних) границ, В.
-    :type  upper_bound: np.ndarray(shape = (1), dtype = np.double).
-    :param dimension: размерность задачи (N).
-    :type  dimension: int
-    :param evolvent_density: плотность развертки (m).
-    :type  evolvent_density: int
-    """
-
     def __init__(self,
-                 lower_bound: np.ndarray = [],
-                 upper_bound: np.ndarray = [],
+                 lower_bound: list[float] = [],
+                 upper_bound: list[float] = [],
                  dimension: int = 1,
                  evolvent_density: int = 10
                  ):
         self.dim = dimension
-        self.lower_bound = np.copy(lower_bound)
-        self.upper_bound = np.copy(upper_bound)
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
         self.evolvent_density = evolvent_density
 
-        self.nexp_value = 0
-        self.nexp_extended: float = 1.0
+        self.nexp_extended = 1 << self.dim
 
-        self.yValues = np.zeros(self.dim, dtype=np.double)
-        for i in range(0, self.dim):
-            self.nexp_extended += self.nexp_extended
-
-    def get_image(self,
-                  x: float
-                  ) -> np.ndarray:
-        """Получить образ (x->y)
-
-        :param x: значение x.
-        :type  x: np.double.
-        :return: массив значений *y*
-        :rtype: np.ndarray(shape = (1), dtype = np.double).
-
-        """
-
+    def get_image(self, x: float) -> list[float]:
         self.__y_on_x(x)
         self.__transform_p2d()
-        return np.copy(self.yValues)
+        return self.y
 
     def __transform_p2d(self):
         for i in range(0, self.dim):
-            self.yValues[i] = self.yValues[i] * (
+            self.y[i] = self.y[i] * (
                     self.upper_bound[i] - self.lower_bound[i]) + \
                               (self.upper_bound[i] + self.lower_bound[i]) / 2
 
-    def __y_on_x(self, _x: float) -> np.ndarray:
+    def __y_on_x(self, _x: float) -> list[float]:
+        self.y = [0.] * self.dim
+
         if self.dim == 1:
-            self.yValues[0] = _x - 0.5
-            return self.yValues
+            self.y[0] = _x - 0.5
+            return self.y
 
         d = _x
         r: float = 0.5
         it: int = 0
 
-        iw = np.ones(self.dim, dtype=np.int32)
-        self.yValues = np.zeros(self.dim, dtype=np.double)
-        iu = np.zeros(self.dim, dtype=np.int32)
-        iv = np.zeros(self.dim, dtype=np.int32)
+        iw = [1] * self.dim
+        iu = [0] * self.dim
+        iv = [0] * self.dim
 
         for j in range(0, self.evolvent_density):
             if math.isclose(_x, 1.0):
@@ -93,16 +65,16 @@ class Evolvent:
             for i in range(0, self.dim):
                 iu[i] *= iw[i]
                 iw[i] *= -iv[i]
-                self.yValues[i] += r * iu[i]
+                self.y[i] += r * iu[i]
 
-        return np.copy(self.yValues)
+        return self.y
 
     def __calculate_node(self,
                          iis: float,
                          n: int,
-                         u: np.ndarray,
-                         v: np.ndarray,
-                         ):
+                         u: list[int],
+                         v: list[int],
+                         ) -> int:
 
         iq = 1
         n1 = n - 1
@@ -125,7 +97,7 @@ class Evolvent:
             k1 = -1
             for i in range(0, n):
                 iff /= 2
-                if iis < iff:  # исправить сравнение!
+                if iis < iff:
                     k2 = -1
                     if math.isclose(iis, (iff - 1.0)) and not math.isclose(iis, 0.0):
                         node = i

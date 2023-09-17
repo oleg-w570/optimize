@@ -66,14 +66,14 @@ def grish_op():
         if rank == 0:
             sol = solver.solution
             if sol.optimum.z < z_opt + 9e-2:
-                allIters.append(sol.iterationCount)
+                allIters.append(sol.niter)
             print(f"Grishagin {i}")
             print(f"Solution point: {y_opt},")
             print(f"Solution value: {z_opt},")
             print(f"My point: {sol.optimum.y},")
             print(f"My value: {sol.optimum.z},")
             print(f"Accuracy: {sol.accuracy}")
-            print(f"Iteration count: {sol.iterationCount}")
+            print(f"Iteration count: {sol.niter}")
             print(f"Number of processes: {MPI.COMM_WORLD.size}")
             print("-------------------------------------")
     if rank == 0:
@@ -113,7 +113,7 @@ def gkls(i: int):
         print(f"Solution value: {z_opt},")
         print(f"My point: {sol.optimum.y},")
         print(f"My value: {sol.optimum.z},")
-        print(f"Iteration count: {sol.iterationCount}")
+        print(f"Iteration count: {sol.niter}")
         print(f"MPI Process: {MPI.COMM_WORLD.size}")
         print("--------------------------------------")
 
@@ -172,4 +172,4 @@ def grishagin(k: int):
         print(f"My point: {sol.optimum.y},")
         print(f"My value: {sol.optimum.z},")
         print(f"Accuracy: {sol.accuracy}")
-        print(f"Iteration count: {sol.iterationCount}")
+        print(f"Iteration count: {sol.niter}")

@@ -16,7 +16,7 @@ class Solver(ABC):
                  stopcondition: StopCondition = StopCondition(),
                  parameters: Parameters = Parameters()):
         self.method: Method = Method(problem, parameters)
-        self.num_proc: int = parameters.process_count
+        self.num_proc: int = parameters.num_proc
         self.stop: StopCondition = stopcondition
         self.intrvls_queue = PriorityQueue()
         self.recalc = True
@@ -30,14 +30,14 @@ class Solver(ABC):
         lpoint, rpoint = self.method.first_points()
         first_interval = IntervalData(rpoint)
         first_interval.left = lpoint
-        first_interval.delta = self.method.calculate_delta(first_interval)
-        self.method.m = self.method.calculate_m(first_interval)
+        first_interval.delta = self.method.delta(first_interval)
+        self.method.m = self.method.lipschitz_constant(first_interval)
         self.intrvls_queue.put_nowait(first_interval)
 
     def recalculate(self) -> None:
         if self.recalc:
             old_intervals = self.intrvls_queue.queue
-            new_r = map(self.method.calculate_r, old_intervals)
+            new_r = map(self.method.characteristic, old_intervals)
             new_intervals = list(map(self.change_r, old_intervals, new_r))
             self.intrvls_queue.queue.clear()
             for interval in new_intervals:
@@ -53,6 +53,6 @@ class Solver(ABC):
     def solution(self):
         intervals = self.intrvls_queue.queue
         points = list(map(lambda interval: interval.right, intervals))
-        self._solution.trials = points
+        self._solution.points = points
         self._solution.optimum = min(points)
         return self._solution

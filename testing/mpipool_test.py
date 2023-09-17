@@ -33,7 +33,7 @@ def grishagin():
         print(f"My point: {sol.optimum.y},")
         print(f"My value: {sol.optimum.z},")
         print(f"Accuracy: {sol.accuracy}")
-        print(f"Iteration count: {sol.iterationCount}")
+        print(f"Iteration count: {sol.niter}")
 
 
 def grish_op():
@@ -61,14 +61,14 @@ def grish_op():
             if rank == 0:
                 sol = solver.solution
                 if sol.optimum.z < z_opt + 9e-2:
-                    allIters.append(sol.iterationCount)
+                    allIters.append(sol.niter)
                 print(f"Grishagin {i}")
                 print(f"Solution point: {y_opt},")
                 print(f"Solution value: {z_opt},")
                 print(f"My point: {sol.optimum.y},")
                 print(f"My value: {sol.optimum.z},")
                 print(f"Accuracy: {sol.accuracy}")
-                print(f"Iteration count: {sol.iterationCount}")
+                print(f"Iteration count: {sol.niter}")
                 print(f"Number of processes: {n}")
                 print("-------------------------------------")
         if rank == 0:
@@ -112,14 +112,14 @@ def gkls_op():
             if rank == 0:
                 sol = solver.solution
                 if sol.optimum.z < z_opt + 9e-2:
-                    allIters.append(sol.iterationCount)
+                    allIters.append(sol.niter)
                 print(f"Grishagin {i}")
                 print(f"Solution point: {y_opt},")
                 print(f"Solution value: {z_opt},")
                 print(f"My point: {sol.optimum.y},")
                 print(f"My value: {sol.optimum.z},")
                 print(f"Accuracy: {sol.accuracy}")
-                print(f"Iteration count: {sol.iterationCount}")
+                print(f"Iteration count: {sol.niter}")
                 print(f"Number of processes: {n}")
                 print("-------------------------------------")
         if rank == 0:

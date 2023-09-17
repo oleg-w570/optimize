@@ -9,19 +9,21 @@ class SequentialSolver(Solver):
         mindelta: float = float('inf')
         niter: int = 0
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
-            intervalt: IntervalData = self.intrvls_queue.get_nowait()
-            mindelta = intervalt.delta
-            trial: Point = self.method.next_point(intervalt)
-            new_intervals = self.method.split_interval(intervalt, trial)
-            new_m = map(self.method.calculate_m, new_intervals)
+            old_intrvl: IntervalData = self.intrvls_queue.get_nowait()
+            mindelta = old_intrvl.delta
+
+            point: Point = self.method.next_point(old_intrvl)
+            new_intrvls = self.method.split_interval(old_intrvl, point)
+
+            new_m = map(self.method.lipschitz_constant, new_intrvls)
             self.recalc |= self.method.update_m(max(new_m))
-            self.recalc |= self.method.update_optimum(trial)
+            self.recalc |= self.method.update_optimum(point)
             self.recalculate()
 
-            new_r = map(self.method.calculate_r, new_intervals)
-            new_intervals = list(map(self.change_r, new_intervals, new_r))
-            for interval in new_intervals:
-                self.intrvls_queue.put_nowait(interval)
+            new_r = map(self.method.characteristic, new_intrvls)
+            new_intrvls = list(map(self.change_r, new_intrvls, new_r))
+            for intrvl in new_intrvls:
+                self.intrvls_queue.put_nowait(intrvl)
             niter += 1
         self._solution.accuracy = mindelta
-        self._solution.iterationCount = niter
+        self._solution.niter = niter

@@ -34,14 +34,14 @@ def grish_op():
         solver.solve()
         sol = solver.solution
         if sol.optimum.z < z_opt + 9e-2:
-            iter_counts.append(sol.iterationCount)
+            iter_counts.append(sol.niter)
 
         print(f"GKLS {i}")
         print(f"Solution point: {y_opt},")
         print(f"Solution value: {z_opt},")
         print(f"My point: {sol.optimum.y},")
         print(f"My value: {sol.optimum.z},")
-        print(f"Iteration count: {sol.iterationCount}")
+        print(f"Iteration count: {sol.niter}")
         print("--------------------------------------")
 
     acc = 0
@@ -107,7 +107,7 @@ def gksl(i: int):
     print(f"Solution value: {z_opt},")
     print(f"My point: {sol.optimum.y},")
     print(f"My value: {sol.optimum.z},")
-    print(f"Iteration count: {sol.iterationCount}")
+    print(f"Iteration count: {sol.niter}")
     print("--------------------------------------")
 
 def gkls_time():
@@ -158,16 +158,16 @@ def gkls_op():
         solver.solve()
         sol = solver.solution
         if sol.optimum.z < z_opt + 9e-2:
-            iter_counts.append(sol.iterationCount)
+            iter_counts.append(sol.niter)
         elif i == 92:
-            iter_counts.append(sol.iterationCount)
+            iter_counts.append(sol.niter)
 
         print(f"GKLS {i}")
         print(f"Solution point: {y_opt},")
         print(f"Solution value: {z_opt},")
         print(f"My point: {sol.optimum.y},")
         print(f"My value: {sol.optimum.z},")
-        print(f"Iteration count: {sol.iterationCount}")
+        print(f"Iteration count: {sol.niter}")
         print("--------------------------------------")
 
     acc = 0
@@ -199,7 +199,7 @@ def TestHill():
     minimum = min(map(f, np.arange(0, 1, 0.001)))
     print(f"Solution value: {minimum},")
     print(f"My value: {sol.optimum.z},")
-    print(f"Iteration count: {sol.iterationCount}")
+    print(f"Iteration count: {sol.niter}")
     print(f"Old agp value: {min(z1)},")
     print(f"Old agp iteration count: {niter}")
 
@@ -218,7 +218,7 @@ def TestShekel():
     minimum = min(map(f, np.arange(0, 10, 0.001)))
     print(f"Solution value: {minimum},")
     print(f"My value: {sol.optimum.z},")
-    print(f"Iteration count: {sol.iterationCount}")
+    print(f"Iteration count: {sol.niter}")
     print(f"Old agp value: {min(z1)},")
     print(f"Old agp iteration count: {niter}")
 
@@ -269,7 +269,7 @@ def TestGrish():
     print(f"Solution value: {z_opt},")
     print(f"My point: {sol.optimumPoint},")
     print(f"My value: {sol.optimumValue},")
-    print(f"Iteration count: {sol.iterationCount}")
+    print(f"Iteration count: {sol.niter}")
 
 def SeqOp():
     r = 2.5

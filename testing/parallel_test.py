@@ -32,7 +32,7 @@ def gksl(i: int):
     print(f"Solution value: {z_opt},")
     print(f"My point: {sol.optimum.y},")
     print(f"My value: {sol.optimum.z},")
-    print(f"Iteration count: {sol.iterationCount}")
+    print(f"Iteration count: {sol.niter}")
     print("--------------------------------------")
 
 
@@ -57,7 +57,7 @@ def gkls_op():
             solver.solve()
             sol = solver.solution
             if sol.optimum.z < z_opt + 9e-2:
-                all_iters.append(sol.iterationCount)
+                all_iters.append(sol.niter)
 
             print(f"GKLS {i}")
             print(f"Solution point: {y_opt},")
@@ -65,7 +65,7 @@ def gkls_op():
             print(f"My point: {sol.optimum.y},")
             print(f"My value: {sol.optimum.z},")
             print(f"Accuracy: {sol.accuracy}")
-            print(f"Iteration count: {sol.iterationCount}")
+            print(f"Iteration count: {sol.niter}")
             print(f"Number of processes: {n}")
             print("-------------------------------------")
         acc = 0
@@ -102,7 +102,7 @@ def grishagin():
     print(f"My point: {sol.optimum.y},")
     print(f"My value: {sol.optimum.z},")
     print(f"Accuracy: {sol.accuracy}")
-    print(f"Iteration count: {sol.iterationCount}")
+    print(f"Iteration count: {sol.niter}")
     print(f"Number of processes: {n}")
 
 
@@ -127,7 +127,7 @@ def grish_op():
             solver.solve()
             sol = solver.solution
             if sol.optimum.z < z_opt + 9e-2:
-                all_iters.append(sol.iterationCount)
+                all_iters.append(sol.niter)
 
             print(f"Grishagin {i}")
             print(f"Solution point: {y_opt},")
@@ -135,7 +135,7 @@ def grish_op():
             print(f"My point: {sol.optimum.y},")
             print(f"My value: {sol.optimum.z},")
             print(f"Accuracy: {sol.accuracy}")
-            print(f"Iteration count: {sol.iterationCount}")
+            print(f"Iteration count: {sol.niter}")
             print(f"Number of processes: {n}")
             print("-------------------------------------")
         acc = 0

@@ -23,19 +23,19 @@ class ParallelSolver(Solver):
                 old_intrvls = self.get_intervals_with_max_r()
                 mindelta = min(old_intrvls, key=(lambda x: x.delta)).delta
 
-                trials: list[Point] = pool.map(self.method.next_point, old_intrvls)
-                new_intervals = pool.map(self.method.split_interval, old_intrvls, trials)
-                new_intervals = list(chain.from_iterable(new_intervals))
+                points: list[Point] = pool.map(self.method.next_point, old_intrvls)
+                new_intrvls = pool.map(self.method.split_interval, old_intrvls, points)
+                new_intrvls = list(chain.from_iterable(new_intrvls))
 
-                new_m: list[float] = pool.map(self.method.calculate_m, new_intervals)
+                new_m: list[float] = pool.map(self.method.lipschitz_constant, new_intrvls)
                 self.recalc |= self.method.update_m(max(new_m))
-                self.recalc |= self.method.update_optimum(min(trials))
+                self.recalc |= self.method.update_optimum(min(points))
                 self.recalculate()
 
-                new_r: list[float] = pool.map(self.method.calculate_r, new_intervals)
-                for interval, r in zip(new_intervals, new_r):
+                new_r: list[float] = pool.map(self.method.characteristic, new_intrvls)
+                for interval, r in zip(new_intrvls, new_r):
                     interval.r = r
                     self.intrvls_queue.put_nowait(interval)
                 niter += 1
         self._solution.accuracy = mindelta
-        self._solution.iterationCount = niter
+        self._solution.niter = niter

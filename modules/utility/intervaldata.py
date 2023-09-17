@@ -12,5 +12,4 @@ class IntervalData:
         return self.r > other.r
 
     def __repr__(self):
-        text = f"(R={self.r}, left={self.left.x}, right={self.right.x})"
-        return text
+        return f"(R={self.r}, left={self.left.x}, right={self.right.x})" 
