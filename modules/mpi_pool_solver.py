@@ -43,12 +43,12 @@ class MpiPoolSolver(Solver):
                 loc_new_intervals = list(chain.from_iterable(loc_new_intervals))
                 all_new_intervals = comm.gather(loc_new_intervals, 0)
 
-                loc_new_m: list[float] = pool.map(self.method.calculate_m, loc_new_intervals)
+                loc_new_m: list[float] = pool.map(self.method.lipschitz_constant, loc_new_intervals)
                 loc_max_m: float = max(loc_new_m)
                 maxm: float = comm.allreduce(loc_max_m, MPI.MAX)
                 self.update_m(maxm)
 
-                loc_new_r: list[float] = pool.map(self.method.calculate_r, loc_new_intervals)
+                loc_new_r: list[float] = pool.map(self.method.characteristic, loc_new_intervals)
                 all_new_r: list[list[float]] = comm.gather(loc_new_r, 0)
                 if rank == 0:
                     self.recalculate()
@@ -67,11 +67,11 @@ class MpiPoolSolver(Solver):
             intervalt: IntervalData = self.intrvls_queue.get()
             trial: Point = self.method.next_point(intervalt)
             new_intervals = self.method.split_interval(intervalt, trial)
-            new_m = map(self.method.calculate_m, new_intervals)
+            new_m = map(self.method.lipschitz_constant, new_intervals)
             self.update_m(max(new_m))
             self.update_optimum(trial)
             self.recalculate()
-            new_r = map(self.method.calculate_r, new_intervals)
+            new_r = map(self.method.characteristic, new_intervals)
             new_intervals = map(self.change_r, new_intervals, new_r)
             for interval in new_intervals:
                 self.intrvls_queue.put_nowait(interval)

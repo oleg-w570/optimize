@@ -32,14 +32,14 @@ class Method:
         self.optimum = point.z if is_update else self.optimum
         return is_update
 
-    def calculate_delta(self, interval: IntervalData) -> float:
+    def delta(self, interval: IntervalData) -> float:
         rx = interval.right.x
         lx = interval.left.x
         n = self.problem.dim
         return (rx - lx) ** (1 / n)
 
     @staticmethod
-    def calculate_m(interval: IntervalData) -> float:
+    def lipschitz_constant(interval: IntervalData) -> float:
         rz = interval.right.z
         lz = interval.left.z
         delta = interval.delta
@@ -48,7 +48,7 @@ class Method:
             return 1
         return m
 
-    def calculate_r(self, interval: IntervalData) -> float:
+    def characteristic(self, interval: IntervalData) -> float:
         rz = interval.right.z
         lz = interval.left.z
         delta = interval.delta
@@ -97,7 +97,7 @@ class Method:
         right_interval = IntervalData(interval.right)
         right_interval.left = left_interval.right
 
-        left_interval.delta = self.calculate_delta(left_interval)
-        right_interval.delta = self.calculate_delta(right_interval)
+        left_interval.delta = self.delta(left_interval)
+        right_interval.delta = self.delta(right_interval)
 
         return left_interval, right_interval
