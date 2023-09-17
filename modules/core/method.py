@@ -39,7 +39,7 @@ class Method:
         return (rx - lx) ** (1 / n)
 
     @staticmethod
-    def lipschitz_constant(interval: IntervalData) -> float:
+    def lipschitz_const(interval: IntervalData) -> float:
         rz = interval.right.z
         lz = interval.left.z
         delta = interval.delta
