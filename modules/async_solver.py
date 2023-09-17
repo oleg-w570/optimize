@@ -1,18 +1,10 @@
 from multiprocessing import Process, Queue, current_process
-
 from modules.utility.intervaldata import IntervalData
 from modules.utility.point import Point
 from modules.core.solver import Solver
 
 
-
-
-
-
-
-
-
-class AsynchronusSolver(Solver):
+class AsyncSolver(Solver):
     def calculator(self, input: Queue, output: Queue):
         for intrvl in iter(input.get, 'STOP'):
             ...
@@ -27,7 +19,6 @@ class AsynchronusSolver(Solver):
         self.first_iteration()
         task_queue: Queue = Queue()
         done_queue: Queue = Queue()
-        # task_queue.put(self.Q.get())
         task_queue.put(3)
         for _ in range(self.num_proc):
             Process(target=self.calculator, args=(task_queue, done_queue)).start()

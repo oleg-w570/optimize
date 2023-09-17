@@ -1,4 +1,4 @@
-from modules.asynchronous_solver import AsynchronusSolver
+from modules.async_solver import AsyncSolver
 from modules.utility.parameters import Parameters
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
@@ -17,7 +17,7 @@ def gksl(i: int):
     problem = Problem(gkls.Calculate, [-1, -1, -1], [1, 1, 1], 3)
     stop = StopCondition(eps, 10000)
     param = Parameters(r, 4)
-    solver = AsynchronusSolver(problem, stop, param)
+    solver = AsyncSolver(problem, stop, param)
     solver.solve()
     sol = solver.solution
     print(f"GKLS {i}")
