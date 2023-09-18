@@ -1,4 +1,4 @@
-import testing.parallel_test as parallel
+# import testing.parallel_test as parallel
 import testing.ndim_test as seq
 
 if __name__ == '__main__':

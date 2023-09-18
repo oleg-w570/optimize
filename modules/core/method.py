@@ -1,7 +1,7 @@
 from modules.utility.point import Point
 from modules.utility.problem import Problem
 from modules.utility.parameters import Parameters
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 
 from modules.evolvent.evolvent import Evolvent
 
@@ -32,14 +32,14 @@ class Method:
         self.optimum = point.z if is_update else self.optimum
         return is_update
 
-    def delta(self, interval: IntervalData) -> float:
+    def delta(self, interval: Interval) -> float:
         rx = interval.right.x
         lx = interval.left.x
         n = self.problem.dim
         return (rx - lx) ** (1 / n)
 
     @staticmethod
-    def lipschitz_const(interval: IntervalData) -> float:
+    def lipschitz_const(interval: Interval) -> float:
         rz = interval.right.z
         lz = interval.left.z
         delta = interval.delta
@@ -48,7 +48,7 @@ class Method:
             return 1
         return m
 
-    def characteristic(self, interval: IntervalData) -> float:
+    def characteristic(self, interval: Interval) -> float:
         rz = interval.right.z
         lz = interval.left.z
         delta = interval.delta
@@ -71,7 +71,7 @@ class Method:
 
         return lpoint, rpoint
 
-    def next_point_coordinate(self, interval: IntervalData) -> float:
+    def next_point_coordinate(self, interval: Interval) -> float:
         rx = interval.right.x
         lx = interval.left.x
         m = self.m
@@ -81,23 +81,22 @@ class Method:
         dg = 1.0 if dif > 0 else -1.0
         return 0.5 * (rx + lx) - 0.5 * dg * (abs(dif) / m) ** n / r
 
-    def next_point(self, interval: IntervalData) -> Point:
+    def next_point(self, interval: Interval) -> Point:
         x: float = self.next_point_coordinate(interval)
         y = self.evolvent.get_image(x)
         z: float = self.problem.f(y)
         return Point(x, y, z)
 
     def split_interval(self,
-                       interval: IntervalData,
+                       interval: Interval,
                        point: Point
-                       ) -> tuple[IntervalData, IntervalData]:
+                       ) -> tuple[Interval, Interval]:
 
-        left_interval = IntervalData(point)
+        left_interval = Interval(point)
         left_interval.left = interval.left
-        right_interval = IntervalData(interval.right)
-        right_interval.left = left_interval.right
-
+        interval.left = left_interval.right
+            
         left_interval.delta = self.delta(left_interval)
-        right_interval.delta = self.delta(right_interval)
+        interval.delta = self.delta(interval)
 
-        return left_interval, right_interval
+        return left_interval, interval
