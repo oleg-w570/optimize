@@ -1,14 +1,14 @@
 import heapq
 
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 
 
 class TrialDataItem:
     def __init__(self,
                  characteristic: float,
-                 interval: IntervalData):
+                 interval: Interval):
         self.characteristic: float = characteristic
-        self.interval: IntervalData = interval
+        self.interval: Interval = interval
         
     def __lt__(self, other) -> bool:
         return self.characteristic > other.characteristic
@@ -19,16 +19,16 @@ class TrialDataItem:
 
 class TrialData:
     def __init__(self):
-        self.intrvl_queue: list[TrialDataItem] = list()
+        self.queue: list[TrialDataItem] = list()
         
-    def insert(self, characteristic: float, interval: IntervalData):
-        heapq.heappush(self.intrvl_queue, TrialDataItem(characteristic, interval))
+    def insert(self, characteristic: float, interval: Interval):
+        heapq.heappush(self.queue, TrialDataItem(characteristic, interval))
         
-    def get_intrvl_with_max_r(self) -> IntervalData:
-        return heapq.heappop(self.intrvl_queue).interval
+    def get_intrvl_with_max_r(self) -> Interval:
+        return heapq.heappop(self.queue).interval
     
     def refill(self):
-        heapq.heapify(self.intrvl_queue)
+        heapq.heapify(self.queue)
     
     def __iter__(self):
-        return iter(self.intrvl_queue)
+        return iter(self.queue)

@@ -1,14 +1,14 @@
 import pathos.multiprocessing as mp
 from itertools import chain
 
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 from modules.utility.point import Point
 from modules.core.solver import Solver
 
 
 class ParallelSolver(Solver):
-    def get_intervals_with_max_r(self) -> list[IntervalData]:
-        intervals: list[IntervalData] = []
+    def get_intervals_with_max_r(self) -> list[Interval]:
+        intervals: list[Interval] = []
         for _ in range(self.num_proc):
             if not self.intrvls_queue.empty():
                 intervals.append(self.intrvls_queue.get_nowait())

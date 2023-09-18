@@ -1,5 +1,5 @@
 
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 from modules.core.trial_data import TrialData
 from modules.utility.point import Point
 # 
@@ -14,10 +14,10 @@ from modules.utility.point import Point
 # print(f'After getting smallest -> {a}')
 
 a = TrialData()
-a.insert(10, IntervalData(Point(1, [1], 1)))
-a.insert(12, IntervalData(Point(1, [1], 1)))
-a.insert(11, IntervalData(Point(1, [1], 1)))
-a.insert(15, IntervalData(Point(1, [1], 1)))
+a.insert(10, Interval(Point(1, [1], 1)))
+a.insert(12, Interval(Point(1, [1], 1)))
+a.insert(11, Interval(Point(1, [1], 1)))
+a.insert(15, Interval(Point(1, [1], 1)))
 
 for item in a:
     print(item)

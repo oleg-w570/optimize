@@ -1,4 +1,4 @@
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 from modules.utility.point import Point
 from modules.core.solver import Solver
 from itertools import chain
@@ -15,10 +15,10 @@ class MPISolver(Solver):
         mindelta: float = float('inf')
         niter: int = 1
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
-            all_intervalt: list[IntervalData] = []
+            all_intervalt: list[Interval] = []
             for _ in range(size):
                 all_intervalt.append(self.intrvls_queue.get_nowait())
-            intervalt: IntervalData = all_intervalt[rank]
+            intervalt: Interval = all_intervalt[rank]
             mindelta = comm.allreduce(intervalt.delta, MPI.MIN)
             trial: Point = self.method.next_point(intervalt)
             mintrial = comm.allreduce(trial, MPI.MIN)
@@ -40,7 +40,7 @@ class MPISolver(Solver):
 
     def sequential_iterations_for_begin(self):
         for _ in range(MPI.COMM_WORLD.size - 1):
-            intervalt: IntervalData = self.intrvls_queue.get_nowait()
+            intervalt: Interval = self.intrvls_queue.get_nowait()
             trial: Point = self.method.next_point(intervalt)
             new_intervals = self.method.split_interval(intervalt, trial)
             new_m = map(self.method.lipschitz_const, new_intervals)

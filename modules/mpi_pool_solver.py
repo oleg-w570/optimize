@@ -1,4 +1,4 @@
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 from modules.utility.point import Point
 from modules.core.solver import Solver
 from itertools import chain
@@ -29,7 +29,7 @@ class MpiPoolSolver(Solver):
                     all_intervalt = [all_intervalt[i:i+step] for i in range(0, len(all_intervalt), step)]
                 else:
                     all_intervalt = None
-                loc_intervalt: list[IntervalData] = comm.scatter(all_intervalt, 0)
+                loc_intervalt: list[Interval] = comm.scatter(all_intervalt, 0)
 
                 loc_mindelta: float = min(loc_intervalt, key=(lambda x: x.delta)).delta
                 mindelta = comm.allreduce(loc_mindelta, MPI.MIN)
@@ -64,7 +64,7 @@ class MpiPoolSolver(Solver):
 
     def sequential_iterations_for_begin(self):
         for _ in range(MPI.COMM_WORLD.size-1):
-            intervalt: IntervalData = self.intrvls_queue.get_nowait()
+            intervalt: Interval = self.intrvls_queue.get_nowait()
             trial: Point = self.method.next_point(intervalt)
             new_intervals = self.method.split_interval(intervalt, trial)
             new_m = map(self.method.lipschitz_const, new_intervals)
