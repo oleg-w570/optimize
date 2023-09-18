@@ -1,4 +1,4 @@
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 from modules.utility.point import Point
 from modules.core.solver import Solver
 from itertools import chain
@@ -11,43 +11,44 @@ class MPISolver(Solver):
         size = comm.Get_size()
         rank = comm.Get_rank()
         self.first_iteration()
-        self.SequentialIterationsForBegin(size - 1)
-        mindelta = float('inf')
-        itercount = 1
-        while mindelta > self.stop.eps and itercount < self.stop.maxiter:
-            all_intervalt: list[IntervalData] = []
+        self.sequential_iterations_for_begin()
+        mindelta: float = float('inf')
+        niter: int = 1
+        while mindelta > self.stop.eps and niter < self.stop.maxiter:
+            all_old_intrvls: list[Interval] = []
             for _ in range(size):
-                all_intervalt.append(self.intrvls_queue.get_nowait())
-            intervalt: IntervalData = all_intervalt[rank]
-            mindelta = comm.allreduce(intervalt.delta, MPI.MIN)
-            trial: Point = self.method.next_point(intervalt)
-            mintrial = comm.allreduce(trial, MPI.MIN)
-            self.update_optimum(mintrial)
-            new_intervals = self.method.split_interval(intervalt, trial)
-            new_m = map(self.method.lipschitz_const, new_intervals)
+                all_old_intrvls.append(self.trial_data.get_intrvl_with_max_r())
+            old_intrvl: Interval = all_old_intrvls[rank]
+            mindelta = comm.allreduce(old_intrvl.delta, MPI.MIN)
+            point: Point = self.method.next_point(old_intrvl)
+            minpoint = comm.allreduce(point, MPI.MIN)
+            self.recalc |= self.method.update_optimum(minpoint)
+            new_intrvl = self.method.split_interval(old_intrvl, point)
+            new_m = map(self.method.lipschitz_const, new_intrvl)
             max_m = comm.allreduce(max(new_m), MPI.MAX)
-            self.update_m(max_m)
-            new_r = map(self.method.characteristic, new_intervals)
-            new_intervals = map(self.change_r, new_intervals, new_r)
+            self.recalc |= self.method.update_m(max_m)
             self.recalculate()
-            all_new_intervals = comm.allgather(new_intervals)
-            all_new_intervals = list(chain.from_iterable(all_new_intervals))
-            for interval in all_new_intervals:
-                self.intrvls_queue.put_nowait(interval)
-            itercount += 1
+            new_r = map(self.method.characteristic, new_intrvl)
+            all_new_r = comm.allgather(new_r)
+            all_new_r = list(chain.from_iterable(all_new_r))
+            all_new_intrvls = comm.allgather(new_intrvl)
+            all_new_intrvls = list(chain.from_iterable(all_new_intrvls))
+            for trial in zip(all_new_r, all_new_intrvls):
+                self.trial_data.insert(*trial)
+            niter += 1
         self._solution.accuracy = mindelta
-        self._solution.niter = itercount
+        self._solution.niter = niter
 
-    def SequentialIterationsForBegin(self, number_iterations: int):
-        for _ in range(number_iterations):
-            intervalt: IntervalData = self.intrvls_queue.get()
-            trial: Point = self.method.next_point(intervalt)
-            new_intervals = self.method.split_interval(intervalt, trial)
-            new_m = map(self.method.lipschitz_const, new_intervals)
-            self.update_m(max(new_m))
-            self.update_optimum(trial)
+    def sequential_iterations_for_begin(self):
+        for _ in range(MPI.COMM_WORLD.size - 1):
+            old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
+            point: Point = self.method.next_point(old_intrvl)
+            new_intrvl = self.method.split_interval(old_intrvl, point)
+            new_m = map(self.method.lipschitz_const, new_intrvl)
+            self.recalc |= self.method.update_m(max(new_m))
+            self.recalc |= self.method.update_optimum(point)
             self.recalculate()
-            new_r = map(self.method.characteristic, new_intervals)
-            new_intervals = map(self.change_r, new_intervals, new_r)
-            for interval in new_intervals:
-                self.intrvls_queue.put_nowait(interval)
+            new_r = map(self.method.characteristic, new_intrvl)
+            for trial in zip(new_r, new_intrvl):
+                self.trial_data.insert(*trial)
+

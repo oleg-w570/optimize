@@ -1,6 +1,6 @@
 from modules.core.solver import Solver
 from modules.utility.point import Point
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 
 
 class SequentialSolver(Solver):
@@ -9,7 +9,7 @@ class SequentialSolver(Solver):
         mindelta: float = float('inf')
         niter: int = 0
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
-            old_intrvl: IntervalData = self.intrvls_queue.get_nowait()
+            old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
             mindelta = old_intrvl.delta
 
             point: Point = self.method.next_point(old_intrvl)
@@ -21,9 +21,9 @@ class SequentialSolver(Solver):
             self.recalculate()
 
             new_r = map(self.method.characteristic, new_intrvls)
-            new_intrvls = list(map(self.change_r, new_intrvls, new_r))
-            for intrvl in new_intrvls:
-                self.intrvls_queue.put_nowait(intrvl)
+            for trial in zip(new_r, new_intrvls):
+                self.trial_data.insert(*trial)
+
             niter += 1
         self._solution.accuracy = mindelta
         self._solution.niter = niter
