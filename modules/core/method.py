@@ -94,8 +94,6 @@ class Method:
 
         left_interval = Interval(point)
         left_interval.left = interval.left
-        # right_interval = Interval(interval.right)
-        # right_interval.left = left_interval.right
         interval.left = left_interval.right
             
         left_interval.delta = self.delta(left_interval)

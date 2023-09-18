@@ -21,8 +21,8 @@ class SequentialSolver(Solver):
             self.recalculate()
 
             new_r = map(self.method.characteristic, new_intrvls)
-            for r, intrvl in zip(new_r, new_intrvls):
-                self.trial_data.insert(r, intrvl)
+            for trial in zip(new_r, new_intrvls):
+                self.trial_data.insert(*trial)
 
             niter += 1
         self._solution.accuracy = mindelta

@@ -29,6 +29,9 @@ class TrialData:
     
     def refill(self):
         heapq.heapify(self.queue)
+        
+    def size(self) -> int:
+        return len(self.queue)
     
     def __iter__(self):
         return iter(self.queue)

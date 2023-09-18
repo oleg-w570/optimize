@@ -3,13 +3,19 @@ from modules.utility.point import Point
 from modules.core.solver import Solver
 from itertools import chain
 from mpi4py import MPI
-import multiprocessing
+from pathos.pools import ProcessPool
 
 
 class MpiPoolSolver(Solver):
+    def get_intrvls_with_max_r(self) -> list[list[Interval]]:
+        intrvls: list[Interval] = []
+        for _ in range(min(MPI.COMM_WORLD.size * self.num_proc, self.trial_data.size())):
+            intrvls.append(self.trial_data.get_intrvl_with_max_r())
+        step = len(intrvls) // MPI.COMM_WORLD.size
+        return [intrvls[i:i + step] for i in range(0, len(intrvls), step)]
+    
     def solve(self):
         comm = MPI.COMM_WORLD
-        size = comm.Get_size()
         rank = comm.Get_rank()
 
         self.first_iteration()
@@ -18,60 +24,53 @@ class MpiPoolSolver(Solver):
         mindelta: float = float('inf')
         niter: int = 0
 
-        with multiprocessing.Pool(self.num_proc) as pool:
+        with ProcessPool(self.num_proc) as pool:
             while mindelta > self.stop.eps and niter < self.stop.maxiter:
                 if rank == 0:
-                    all_intervalt = []
-                    for _ in range(size * self.num_proc):
-                        if not self.intrvls_queue.empty():
-                            all_intervalt.append(self.intrvls_queue.get())
-                    step = len(all_intervalt) // size
-                    all_intervalt = [all_intervalt[i:i+step] for i in range(0, len(all_intervalt), step)]
+                    all_old_intrvls = self.get_intrvls_with_max_r()
                 else:
-                    all_intervalt = None
-                loc_intervalt: list[Interval] = comm.scatter(all_intervalt, 0)
+                    all_old_intrvls = None
+                loc_old_intrvls: list[Interval] = comm.scatter(all_old_intrvls, 0)
 
-                loc_mindelta: float = min(loc_intervalt, key=(lambda x: x.delta)).delta
+                loc_mindelta: float = min(loc_old_intrvls, key=(lambda x: x.delta)).delta
                 mindelta = comm.allreduce(loc_mindelta, MPI.MIN)
 
-                loc_trials: list[Point] = pool.map(self.method.next_point, loc_intervalt)
-                loc_mintrial: Point = min(loc_trials)
-                mintrial: Point = comm.allreduce(loc_mintrial, MPI.MIN)
-                self.recalc |= self.method.update_optimum(mintrial)
+                loc_points: list[Point] = pool.map(self.method.next_point, loc_old_intrvls)
+                loc_minpoint: Point = min(loc_points)
+                minpoint: Point = comm.allreduce(loc_minpoint, MPI.MIN)
+                self.recalc |= self.method.update_optimum(minpoint)
 
-                loc_new_intervals = pool.starmap(self.method.split_interval, zip(loc_intervalt, loc_trials))
-                loc_new_intervals = list(chain.from_iterable(loc_new_intervals))
-                all_new_intervals = comm.gather(loc_new_intervals, 0)
+                loc_new_intrvls = pool.map(self.method.split_interval, loc_old_intrvls, loc_points)
+                loc_new_intrvls = list(chain.from_iterable(loc_new_intrvls))
+                all_new_intrvls = comm.gather(loc_new_intrvls, 0)
 
-                loc_new_m: list[float] = pool.map(self.method.lipschitz_const, loc_new_intervals)
+                loc_new_m: list[float] = pool.map(self.method.lipschitz_const, loc_new_intrvls)
                 loc_max_m: float = max(loc_new_m)
-                maxm: float = comm.allreduce(loc_max_m, MPI.MAX)
-                self.recalc |= self.method.update_m(maxm)
+                max_m: float = comm.allreduce(loc_max_m, MPI.MAX)
+                self.recalc |= self.method.update_m(max_m)
 
-                loc_new_r: list[float] = pool.map(self.method.characteristic, loc_new_intervals)
+                loc_new_r: list[float] = pool.map(self.method.characteristic, loc_new_intrvls)
                 all_new_r: list[list[float]] = comm.gather(loc_new_r, 0)
                 if rank == 0:
                     self.recalculate()
-                    all_new_intervals = list(chain.from_iterable(all_new_intervals))
+                    all_new_intrvls = list(chain.from_iterable(all_new_intrvls))
                     all_new_r = list(chain.from_iterable(all_new_r))
 
-                    for interval, R in zip(all_new_intervals, all_new_r):
-                        interval.R = R
-                        self.intrvls_queue.put_nowait(interval)
+                    for trial in zip(all_new_r, all_new_intrvls):
+                        self.trial_data.insert(*trial)
                 niter += 1
             self._solution.accuracy = mindelta
             self._solution.niter = niter
 
     def sequential_iterations_for_begin(self):
         for _ in range(MPI.COMM_WORLD.size-1):
-            intervalt: Interval = self.intrvls_queue.get_nowait()
-            trial: Point = self.method.next_point(intervalt)
-            new_intervals = self.method.split_interval(intervalt, trial)
-            new_m = map(self.method.lipschitz_const, new_intervals)
+            old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
+            point: Point = self.method.next_point(old_intrvl)
+            new_intrvl = self.method.split_interval(old_intrvl, point)
+            new_m = map(self.method.lipschitz_const, new_intrvl)
             self.recalc |= self.method.update_m(max(new_m))
-            self.recalc |= self.method.update_optimum(trial)
+            self.recalc |= self.method.update_optimum(point)
             self.recalculate()
-            new_r = map(self.method.characteristic, new_intervals)
-            new_intervals = map(self.change_r, new_intervals, new_r)
-            for interval in new_intervals:
-                self.intrvls_queue.put_nowait(interval)
+            new_r = map(self.method.characteristic, new_intrvl)
+            for trial in zip(new_r, new_intrvl):
+                self.trial_data.insert(*trial)
