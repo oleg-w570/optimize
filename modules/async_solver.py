@@ -1,8 +1,7 @@
 from multiprocessing import Process, Queue
-from time import perf_counter
 
 from modules.core.method import Method
-from modules.utility.intervaldata import IntervalData
+from modules.utility.interval import Interval
 from modules.utility.parameters import Parameters
 from modules.core.solver import Solver
 from modules.utility.problem import Problem
@@ -25,10 +24,9 @@ class Worker(Process):
             self.method.optimum = optimum
             point = self.method.next_point(intrvl)
             new_intrvls = self.method.split_interval(intrvl, point)
-            for new_intrvl in new_intrvls:
-                new_intrvl.r = self.method.characteristic(new_intrvl)
-                new_intrvl.m = self.method.lipschitz_const(new_intrvl)
-            self.done.put(new_intrvls)
+            new_r = map(self.method.characteristic, new_intrvls)
+            new_m = map(self.method.lipschitz_const, new_intrvls)
+            self.done.put((new_m, new_r, new_intrvls))
 
 
 class AsyncSolver(Solver):
@@ -39,49 +37,48 @@ class AsyncSolver(Solver):
         super().__init__(problem, stopcondition, parameters)
         self.tasks: Queue = Queue()
         self.done: Queue = Queue()
-        self.workers: list[Worker] = []
-        for _ in range(self.num_proc):
-            w = Worker(self.method, self.tasks, self.done)
-            self.workers.append(w)
+        self.workers: list[Worker] = [Worker(self.method, self.tasks, self.done)
+                                      for _ in range(self.num_proc)]
 
     def start_workers(self) -> None:
         for w in self.workers:
             w.start()
-        self.tasks.put_nowait((self.intrvls_queue.get_nowait(),
+        self.tasks.put_nowait((self.trial_data.get_intrvl_with_max_r(),
                                self.method.m, self.method.optimum))
 
     def stop_workers(self) -> None:
         for _ in range(self.num_proc):
             self.tasks.put_nowait('STOP')
+        self.done.get()
+        # while not self.done.empty:
+        #     _, new_r, new_intrvl = self.done.get()
+        #     print('another one')
+        #     self.trial_data.insert(new_r[0], new_intrvl[0])
+        #     self.trial_data.insert(new_r[1], new_intrvl[1])
         for w in self.workers:
             w.join()
             w.close()
-        while not self.done.empty:
-            self.intrvls_queue.put_nowait(self.done.get())
-
+            
     def solve(self):
         self.first_iteration()
         self.start_workers()
         mindelta: float = float('inf')
         niter: int = 0
-        start_time = perf_counter()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
-            new_intrvls: tuple[IntervalData, IntervalData] = self.done.get()
-            for new_intrvl in new_intrvls:
-                self.intrvls_queue.put_nowait(new_intrvl)
+            new_m, new_r, new_intrvls = self.done.get()
+            for trial in zip(new_r, new_intrvls):
+                self.trial_data.insert(*trial)
 
-            m = max(new_intrvls[0].m, new_intrvls[1].m)
             point = new_intrvls[0].right
-            self.recalc |= self.method.update_m(m)
+            self.recalc |= self.method.update_m(max(new_m))
             self.recalc |= self.method.update_optimum(point)
             self.recalculate()
 
-            old_intrvl: IntervalData = self.intrvls_queue.get_nowait()
+            old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
             self.tasks.put_nowait((old_intrvl, self.method.m, self.method.optimum))
 
             mindelta = old_intrvl.delta
             niter += 1
-        self.solving_time = perf_counter() - start_time
         self.stop_workers()
         self._solution.accuracy = mindelta
         self._solution.niter = niter
