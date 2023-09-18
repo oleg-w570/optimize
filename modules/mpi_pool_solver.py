@@ -57,7 +57,7 @@ class MpiPoolSolver(Solver):
 
                     for interval, R in zip(all_new_intervals, all_new_r):
                         interval.R = R
-                        self.intrvls_queue.put(interval)
+                        self.intrvls_queue.put_nowait(interval)
                 niter += 1
             self._solution.accuracy = mindelta
             self._solution.niter = niter
