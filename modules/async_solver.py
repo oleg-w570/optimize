@@ -1,3 +1,4 @@
+import queue
 from multiprocessing import Process, Queue
 
 from modules.core.method import Method
@@ -50,14 +51,20 @@ class AsyncSolver(Solver):
         for _ in range(self.num_proc):
             self.tasks.put_nowait('STOP')
         self.done.get()
-        # while not self.done.empty:
-        #     _, new_r, new_intrvl = self.done.get()
-        #     print('another one')
-        #     self.trial_data.insert(new_r[0], new_intrvl[0])
-        #     self.trial_data.insert(new_r[1], new_intrvl[1])
         for w in self.workers:
             w.join()
             w.close()
+            
+    def save_remaining_intrvls(self) -> None:
+        while True:
+            try:
+                _, new_r, new_intrvls = self.done.get_nowait()
+            except queue.Empty:
+                break
+            else:
+                print('remaining interval')
+                for trial in zip(new_r, new_intrvls):
+                    self.trial_data.insert(*trial)
             
     def solve(self):
         self.first_iteration()
@@ -79,6 +86,7 @@ class AsyncSolver(Solver):
 
             mindelta = old_intrvl.delta
             niter += 1
+        # self.save_remaining_intrvls()
         self.stop_workers()
         self._solution.accuracy = mindelta
         self._solution.niter = niter

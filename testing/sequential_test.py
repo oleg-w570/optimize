@@ -134,15 +134,16 @@ def gkls_time():
     avg_solving_time = mean(solving_time)
     print("=============================================")
     print("|\tGKLS functions\t|")
-    print("|\tSequential algorithm \t|")
+    print("|\tSequential algorithm\t|")
     print(f"|\tr = {r}, eps = {eps}\t|")
     print(f"|\tMax solving time: {max_solving_time} sec\t|")
     print(f"|\tAverage solving time: {avg_solving_time} sec.\t|")
     print("=============================================")
 
+
 def gkls_op():
-    r = 3
-    eps = 0.001
+    r = 4
+    eps = 0.01
     iter_counts = []
     gkls = GKLSFunction()
     gkls.SetDimension(3)
@@ -159,9 +160,6 @@ def gkls_op():
         sol = solver.solution
         if sol.optimum.z < z_opt + 9e-2:
             iter_counts.append(sol.niter)
-        elif i == 92:
-            iter_counts.append(sol.niter)
-
         print(f"GKLS {i}")
         print(f"Solution point: {y_opt},")
         print(f"Solution value: {z_opt},")

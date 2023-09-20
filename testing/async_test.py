@@ -1,10 +1,56 @@
 from statistics import mean
 
+from matplotlib import pyplot as plt
+
 from modules.async_solver import AsyncSolver
 from modules.utility.parameters import Parameters
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
 from problems.gkls_function import GKLSClass, GKLSFunction
+
+
+def gkls_op():
+    n = 4
+    r = 4
+    eps = 0.01
+    iter_counts = []
+    gkls = GKLSFunction()
+    gkls.SetDimension(3)
+    gkls.SetFunctionClass(GKLSClass.Simple, 3)
+    for i in range(1, 101):
+        gkls.SetFunctionNumber(i)
+        y_opt = gkls.GetOptimumPoint()
+        z_opt = gkls.GetOptimumValue()
+        problem = Problem(gkls.Calculate, [-1, -1, -1], [1, 1, 1], 3)
+        stop = StopCondition(eps, 100000)
+        param = Parameters(r, n)
+        solver = AsyncSolver(problem, stop, param)
+        solver.solve()
+        sol = solver.solution
+        if sol.optimum.z < z_opt + 9e-2 or i == 92:
+            iter_counts.append(sol.niter)
+
+        print(f"GKLS {i}")
+        print(f"Solution point: {y_opt},")
+        print(f"Solution value: {z_opt},")
+        print(f"My point: {sol.optimum.y},")
+        print(f"My value: {sol.optimum.z},")
+        print(f"Iteration count: {sol.niter}")
+        print(f"Number of processes: {n}")
+        print("--------------------------------------")
+    acc = 0
+    percent = []
+    for i in range(0, max(iter_counts) + 1):
+        acc += iter_counts.count(i)
+        percent.append(acc)
+
+    plt.style.use('seaborn-v0_8')
+    plt.title(f'Операционная характеристика АГП\nфункции GKLS\nr = {r}, eps = {eps}, dim = {3}')
+    plt.xlabel('Число проведённых испытаний')
+    plt.ylabel('% решённых задач')
+    plt.plot(range(0, max(iter_counts) + 1), percent, linewidth=1, label='АГП')
+    plt.legend()
+    plt.show()
 
 
 def gkls_time():
@@ -30,14 +76,12 @@ def gkls_time():
         print("-------------------------------------")
     max_solving_time = max(solving_time)
     avg_solving_time = mean(solving_time)
-    print("=============================================")
-    print("|\tGKLS functions\t|")
-    print("|\tSequential algorithm \t|")
-    print(f"|\tr = {r}, eps = {eps}\t|")
-    print(f"|\tMax solving time: {max_solving_time} sec\t|")
-    print(f"|\tAverage solving time: {avg_solving_time} sec.\t|")
+    print("GKLS functions")
+    print("Asynchronous algorithm")
+    print(f"r = {r}, eps = {eps}")
+    print(f"Max solving time: {max_solving_time} sec")
+    print(f"Average solving time: {avg_solving_time} sec.")
     print(f"Number of processes: {n}")
-    print("=============================================")
     
 
 def gksl(i: int):
