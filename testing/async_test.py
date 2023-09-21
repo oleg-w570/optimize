@@ -10,7 +10,7 @@ from problems.gkls_function import GKLSClass, GKLSFunction
 
 
 def gkls_op():
-    n = 4
+    n = 2
     r = 4
     eps = 0.01
     iter_counts = []
@@ -27,7 +27,7 @@ def gkls_op():
         solver = AsyncSolver(problem, stop, param)
         solver.solve()
         sol = solver.solution
-        if sol.optimum.z < z_opt + 9e-2 or i == 92:
+        if sol.optimum.z < z_opt + 9e-2:
             iter_counts.append(sol.niter)
 
         print(f"GKLS {i}")
@@ -45,7 +45,8 @@ def gkls_op():
         percent.append(acc)
 
     plt.style.use('seaborn-v0_8')
-    plt.title(f'Операционная характеристика АГП\nфункции GKLS\nr = {r}, eps = {eps}, dim = {3}')
+    plt.title(f'Операционная характеристика\nПараллельная асинхронная версия АГП\n'
+              f'Функции GKLS\nr = {r}, eps = {eps}, num_proc = {n}, dim = {3}')
     plt.xlabel('Число проведённых испытаний')
     plt.ylabel('% решённых задач')
     plt.plot(range(0, max(iter_counts) + 1), percent, linewidth=1, label='АГП')
@@ -85,7 +86,7 @@ def gkls_time():
     
 
 def gksl(i: int):
-    n = 8
+    n = 4
     r = 4
     eps = 0.01
     gkls = GKLSFunction()
