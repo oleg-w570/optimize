@@ -5,10 +5,10 @@ import testing.mpipool_test as mpipool
 import testing.mpi_test as mpi
 
 if __name__ == '__main__':
-    asnc.all_proc_gkls_op()
+    # asnc.all_proc_gkls_op()
     # asnc.gkls_op()
     # asnc.gkls_time()
-    # asnc.gksl(22)
+    asnc.gksl(66)
     # mpi.grish_time()
     # mpi.gkls(24)
     # mpi.grish_op()

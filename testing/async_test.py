@@ -153,4 +153,5 @@ def gksl(i: int):
     print(f"My point: {sol.optimum.y},")
     print(f"My value: {sol.optimum.z},")
     print(f"Iteration count: {sol.niter}")
+    print(f"Solving time: {solver.solving_time}")
     print("--------------------------------------")

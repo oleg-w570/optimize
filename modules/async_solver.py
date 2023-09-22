@@ -1,4 +1,5 @@
 from multiprocessing import Process, Queue
+from time import perf_counter
 
 from modules.core.method import Method
 from modules.utility.interval import Interval
@@ -46,6 +47,7 @@ class AsyncSolver(Solver):
         self.start_workers()  # стартуем все процессы и передаём каждому по интервалу
         mindelta: float = float('inf')
         niter: int = 0
+        start = perf_counter()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
             new_m, new_r, new_intrvls = self.done.get()  # обязательно ждём, что один процесс завершит обработку интервала и вернёт результат
             for trial in zip(new_r, new_intrvls):  # здесь и далее идёт обработка полученных данных
@@ -68,6 +70,8 @@ class AsyncSolver(Solver):
             for old_intrvl in old_intrvls:
                 self.tasks.put_nowait((old_intrvl, self.method.m, self.method.optimum))  # также передаём процессам текущие оценку конст Л. и оптимума
             niter += 1
+            # print(released_process)
+        self.solving_time = perf_counter() - start
         self.stop_workers()
         self._solution.accuracy = mindelta
         self._solution.niter = niter
