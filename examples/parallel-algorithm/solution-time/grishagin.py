@@ -14,7 +14,7 @@ def parallel_alg_solution_time_for_grishagin(n:int, r: float, eps: float):
         grish = GrishaginFunction(i)
         problem = Problem(grish.Calculate, [0, 0], [1, 1], 2)
         stop = StopCondition(eps, 10000)
-        param = Parameters(r)
+        param = Parameters(r, n)
         solver = SequentialSolver(problem, stop, param)
         start = perf_counter()
         solver.solve()
