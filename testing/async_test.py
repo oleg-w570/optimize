@@ -1,4 +1,5 @@
 from statistics import mean
+from time import perf_counter
 
 from matplotlib import pyplot as plt
 
@@ -101,7 +102,7 @@ def gkls_op():
 
 
 def gkls_time():
-    n = 4
+    n = 8
     r = 4
     eps = 0.01
     solving_time = []
@@ -132,7 +133,7 @@ def gkls_time():
     
 
 def gksl(i: int):
-    n = 4
+    n = 8
     r = 4
     eps = 0.01
     gkls = GKLSFunction()
@@ -153,4 +154,5 @@ def gksl(i: int):
     print(f"My point: {sol.optimum.y},")
     print(f"My value: {sol.optimum.z},")
     print(f"Iteration count: {sol.niter}")
+    print(f"Solving time: {solver.solving_time}")
     print("--------------------------------------")

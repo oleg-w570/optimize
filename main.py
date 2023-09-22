@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # mpipool.gkls_op()
     # mpipool.grish_time()
     # seq.gkls_op()
-    # seq.gksl(22)
+    seq.gksl(66)
     # seq.grish_op()
     # seq.grish_time()
     # seq.gkls_time()

@@ -108,7 +108,9 @@ def gksl(i: int):
     print(f"My point: {sol.optimum.y},")
     print(f"My value: {sol.optimum.z},")
     print(f"Iteration count: {sol.niter}")
+    print(f"Solving time: {solver.solving_time}")
     print("--------------------------------------")
+
 
 def gkls_time():
     r = 4
@@ -123,12 +125,12 @@ def gkls_time():
         stop = StopCondition(eps, 100000)
         param = Parameters(r)
         solver = SequentialSolver(problem, stop, param)
-        start = perf_counter()
+        # start = perf_counter()
         solver.solve()
-        end = perf_counter()
-        solving_time.append(end-start)
+        # end = perf_counter()
+        solving_time.append(solver.solving_time)
         print(f"GKLS {i}")
-        print(f"Solving time: {end - start} sec")
+        print(f"Solving time: {solver.solving_time} sec")
         print("-------------------------------------")
     max_solving_time = max(solving_time)
     avg_solving_time = mean(solving_time)
