@@ -10,14 +10,15 @@ from problems.gkls_function import GKLSClass, GKLSFunction
 
 
 def all_proc_gkls_op():
+    plt.style.use('seaborn-v0_8')
     num_proc = (2, 4, 8)
     r = 4
     eps = 0.01
-    iter_counts = []
     gkls = GKLSFunction()
     gkls.SetDimension(3)
     gkls.SetFunctionClass(GKLSClass.Simple, 3)
     for n in num_proc:
+        iter_counts = []
         for i in range(1, 101):
             gkls.SetFunctionNumber(i)
             y_opt = gkls.GetOptimumPoint()
@@ -46,8 +47,6 @@ def all_proc_gkls_op():
             acc += iter_counts.count(i)
             percent.append(acc)
         plt.plot(range(0, max(iter_counts) + 1), percent, linewidth=1, label=f'{n} process')
-
-    plt.style.use('seaborn-v0_8')
     plt.title(f'Операционная характеристика\nПараллельная асинхронная версия АГП\n'
               f'Функции GKLS\nr = {r}, eps = {eps}, dim = {3}')
     plt.xlabel('Количество итераций')
