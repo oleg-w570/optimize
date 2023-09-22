@@ -79,8 +79,8 @@ class AsyncSolver(Solver):
         mindelta: float = float('inf')
         niter: int = 0
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
-            new_m, new_r, new_intrvls = self.done.get()
-            for trial in zip(new_r, new_intrvls):
+            new_m, new_r, new_intrvls = self.done.get()  # ждём пока завершит вычисление один из процессов и даст результат
+            for trial in zip(new_r, new_intrvls):  # обрабатываем его
                 self.trial_data.insert(*trial)
 
             point = new_intrvls[0].right
@@ -88,7 +88,7 @@ class AsyncSolver(Solver):
             self.recalc |= self.method.update_optimum(point)
             self.recalculate()
 
-            old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
+            old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()  # выдаём интервал
             self.tasks.put_nowait((old_intrvl, self.method.m, self.method.optimum))
 
             mindelta = old_intrvl.delta
