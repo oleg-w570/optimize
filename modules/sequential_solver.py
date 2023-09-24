@@ -10,7 +10,7 @@ class SequentialSolver(Solver):
         self.first_iteration()
         mindelta: float = float('inf')
         niter: int = 0
-        start = perf_counter()
+        start_time = perf_counter()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
             old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
             mindelta = old_intrvl.delta
@@ -28,6 +28,6 @@ class SequentialSolver(Solver):
                 self.trial_data.insert(*trial)
 
             niter += 1
-        self.solving_time = perf_counter() - start
+        self._solution.time = perf_counter() - start_time
         self._solution.accuracy = mindelta
         self._solution.niter = niter

@@ -34,7 +34,8 @@ def seq_alg_svc(r: float, eps: float):
     print(f"Calculated point: {sol.optimum.y},")
     print(f"Calculated value: {sol.optimum.z},")
     print(f"Iteration count: {sol.niter}")
+    print(f'Solution time: {sol.time}')
 
 
 if __name__ == "__main__":
-    seq_alg_svc(4, 0.01)
+    seq_alg_svc(3, 0.001)

@@ -1,14 +1,14 @@
 from sklearn.datasets import load_breast_cancer
 from sklearn.utils import shuffle
 
-from modules.parallel_solver import ParallelSolver
+from modules.async_solver import AsyncSolver
 from modules.utility.parameters import Parameters
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
 from problems.svc import SVC_2D
 
 
-def parallel_alg_svc(n: int, r: float, eps: float):
+def async_alg_svc(n: int, r: float, eps: float):
     x, y = load_breast_cancer_data()
     regularization_value_bound = {'low': 1, 'up': 6}
     kernel_coefficient_bound = {'low': -7, 'up': -3}
@@ -18,7 +18,7 @@ def parallel_alg_svc(n: int, r: float, eps: float):
     problem = Problem(svc.calculate, svc.lower_bound, svc.upper_bound, 2)
     stop = StopCondition(eps, 10000)
     param = Parameters(r, n)
-    solver = ParallelSolver(problem, stop, param)
+    solver = AsyncSolver(problem, stop, param)
     solver.solve()
     sol = solver.solution
     print("SVC 2D")
@@ -38,4 +38,4 @@ def load_breast_cancer_data():
 
 
 if __name__ == "__main__":
-    parallel_alg_svc(4, 4, 0.01)
+    async_alg_svc(4, 4, 0.01)

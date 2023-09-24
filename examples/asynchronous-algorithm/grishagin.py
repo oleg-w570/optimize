@@ -22,6 +22,7 @@ def async_alg_grishagin(i: int, n: int, r: float, eps: float):
     print(f"Calculated point: {sol.optimumPoint},")
     print(f"Calculated value: {sol.optimumValue},")
     print(f"Iteration count: {sol.niter}")
+    print(f'Solution time: {sol.time}')
 
 
 if __name__ == "__main__":
