@@ -10,12 +10,12 @@ from numpy import mean
 from archive.agp_third import AGP
 from modules.utility.stopcondition import StopCondition
 from problems.grishagin_function import GrishaginFunction
-from problems.shekel_function import ShekelFunction
-from problems.hill_function import HillFunction
+from problems.shekel.shekel_function import ShekelFunction
+from problems.hill.hill_function import HillFunction
 from modules.utility.problem import Problem
 from modules.utility.parameters import Parameters
 from modules.sequential_solver import SequentialSolver
-from problems.gkls_function import GKLSFunction, GKLSClass
+from problems.gkls.gkls_function import GKLSFunction, GKLSClass
 random.seed()
 
 

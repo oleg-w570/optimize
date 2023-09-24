@@ -6,7 +6,7 @@ from modules.parallel_solver import ParallelSolver
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
 from modules.utility.parameters import Parameters
-from problems.gkls_function import GKLSFunction, GKLSClass
+from problems.gkls.gkls_function import GKLSFunction, GKLSClass
 from problems.grishagin_function import GrishaginFunction
 import matplotlib.pyplot as plt
 

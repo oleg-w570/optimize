@@ -9,7 +9,7 @@ from modules.utility.parameters import Parameters
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
 from problems.grishagin_function import GrishaginFunction
-from problems.gkls_function import GKLSFunction, GKLSClass
+from problems.gkls.gkls_function import GKLSFunction, GKLSClass
 
 
 def grish_time():

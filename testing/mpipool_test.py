@@ -4,12 +4,12 @@ from matplotlib import pyplot as plt
 from mpi4py import MPI
 from numpy import mean
 
-from modules.mpi_pool_solver import MpiPoolSolver
+from modules.mpi_pool_solver import MPIPoolSolver
 from modules.utility.parameters import Parameters
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
 from problems.grishagin_function import GrishaginFunction
-from problems.gkls_function import GKLSFunction, GKLSClass
+from problems.gkls.gkls_function import GKLSFunction, GKLSClass
 
 
 def grishagin():
@@ -22,7 +22,7 @@ def grishagin():
     problem = Problem(grish.Calculate, [0, 0], [1, 1], 2)
     stop = StopCondition(0.01, 1000)
     param = Parameters(2.5, 4)
-    solver = MpiPoolSolver(problem, stop, param)
+    solver = MPIPoolSolver(problem, stop, param)
     solver.solve()
 
     if MPI.COMM_WORLD.rank == 0:
@@ -56,7 +56,7 @@ def grish_op():
             problem = Problem(grish.Calculate, [0, 0], [1, 1], 2)
             stop = StopCondition(eps, 10000)
             param = Parameters(r, n)
-            solver = MpiPoolSolver(problem, stop, param)
+            solver = MPIPoolSolver(problem, stop, param)
             solver.solve()
             if rank == 0:
                 sol = solver.solution
@@ -107,7 +107,7 @@ def gkls_op():
             problem = Problem(gkls.Calculate, [-1, -1, -1], [1, 1, 1], 3)
             stop = StopCondition(eps, 10000)
             param = Parameters(r, n)
-            solver = MpiPoolSolver(problem, stop, param)
+            solver = MPIPoolSolver(problem, stop, param)
             solver.solve()
             if rank == 0:
                 sol = solver.solution
@@ -149,7 +149,7 @@ def grish_time():
         problem = Problem(grish.Calculate, [0, 0], [1, 1], 2)
         stop = StopCondition(eps, 100000)
         param = Parameters(r, n)
-        solver = MpiPoolSolver(problem, stop, param)
+        solver = MPIPoolSolver(problem, stop, param)
         if rank == 0:
             start = perf_counter()
         solver.solve()

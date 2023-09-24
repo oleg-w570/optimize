@@ -61,12 +61,12 @@ class Method:
     def first_points(self) -> tuple[Point, Point]:
         lx = 0.0
         ly = self.evolvent.get_image(lx)
-        lz = self.problem.f(ly)
+        lz = self.problem.calculate(ly)
         lpoint = Point(lx, ly, lz)
 
         rx = 1.0
         ry = self.evolvent.get_image(rx)
-        rz = self.problem.f(ry)
+        rz = self.problem.calculate(ry)
         rpoint = Point(rx, ry, rz)
 
         return lpoint, rpoint
@@ -83,8 +83,8 @@ class Method:
 
     def next_point(self, interval: Interval) -> Point:
         x: float = self.next_point_coordinate(interval)
-        y = self.evolvent.get_image(x)
-        z: float = self.problem.f(y)
+        y: list[float] = self.evolvent.get_image(x)
+        z: float = self.problem.calculate(y)
         return Point(x, y, z)
 
     def split_interval(self,
