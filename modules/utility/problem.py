@@ -1,11 +1,21 @@
-class Problem:
-    def __init__(self,
-                 func: callable,
-                 lower_bound: list[float],
-                 upper_bound: list[float],
-                 dimension: int):
-        self.f = func
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
-        self.dim = dimension
+from abc import ABC, abstractmethod
 
+from modules.utility.point import Point
+
+
+class Problem(ABC):
+    def __init__(self) -> None:
+        self.name: str
+        self.dim: int
+        self.lower_bound: list[float]
+        self.upper_bound: list[float]
+        self.optimum: Point
+
+    @abstractmethod
+    def calculate(self, point: list[float]) -> float:
+        pass
+
+    def __repr__(self):
+        return (f'{self.name}\n'
+                f'Known optimum point: {self.optimum.y}\n'
+                f'Known optimum value: {self.optimum.z}')

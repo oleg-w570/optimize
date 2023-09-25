@@ -1,5 +1,5 @@
 import numpy as np
-import problems.grishagin_generation as grishaginGen
+import problems.grishagin.grishagin_generation as grishaginGen
 import math
 
 
@@ -115,10 +115,3 @@ class GrishaginFunction:
         y[0] = grishaginGen.rand_minimums[2 * (self.fn - 1)]
         y[1] = grishaginGen.rand_minimums[2 * (self.fn - 1) + 1]
         return y
-
-
-if __name__ == "__main__":
-    grish = GrishaginFunction(4)
-    functionValue = grish.Calculate([0.066182, 0.582587])
-    print(functionValue)
-    print(grish.GetOptimumPoint())

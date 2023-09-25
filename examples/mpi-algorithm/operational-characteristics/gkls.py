@@ -1,3 +1,4 @@
+import mpi4py
 from matplotlib import pyplot as plt
 
 from modules.solve import solve
@@ -15,7 +16,7 @@ if __name__ == '__main__':
         print(problem)
         sol = solve(problem,
                     r=r, eps=eps,
-                    alg='parallel', num_proc=n)
+                    alg='mpi')
         print(sol)
         iter_counts.append(sol.niter)
         # if sol.optimum.z < z_opt + 9e-2:
@@ -26,8 +27,8 @@ if __name__ == '__main__':
     for i in range(0, max(iter_counts) + 1):
         acc += iter_counts.count(i)
         percent.append(acc)
-    plt.title(f'Операционная характеристика\nПараллельная версия АГП\n'
-              f'Функции GKLS\nr = {r}, eps = {eps}, num_proc = {n}, dim = {3}')
+    plt.title(f'Операционная характеристика\nПараллельная версия АГП (mpi)\n'
+              f'Функции GKLS\nr = {r}, eps = {eps}, num_proc = {mpi4py.MPI.COMM_WORLD.size}, dim = {3}')
     plt.xlabel('Количество итераций')
     plt.ylabel('% решённых задач')
     plt.plot(range(0, max(iter_counts) + 1), percent, linewidth=1, label='АГП')

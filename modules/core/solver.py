@@ -41,9 +41,10 @@ class Solver(ABC):
             self.recalc = False
             
     @property
-    def solution(self):
+    def solution(self) -> Solution:
         points = list(map(lambda trial: trial.interval.right,
                           self.trial_data.queue))
         self._solution.points = points
+        self._solution.ntrial = len(points)
         self._solution.optimum = min(points)
         return self._solution

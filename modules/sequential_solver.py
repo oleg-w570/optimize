@@ -1,5 +1,4 @@
 from time import perf_counter
-
 from modules.core.solver import Solver
 from modules.utility.point import Point
 from modules.utility.interval import Interval
