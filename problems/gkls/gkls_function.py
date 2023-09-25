@@ -176,7 +176,6 @@ class GKLSFunction:
 
     def Calculate(self, x: np.ndarray(shape=(1), dtype=np.double)):
         value = self.CalculateDFunction(x)
-        sleep(0.01)
         # switch(mFunctionType)
         # {
         # case TND:

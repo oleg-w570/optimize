@@ -1,6 +1,3 @@
-import os
-import sys
-sys.path.append(os.getcwd())
 from modules.solve import solve
 from problems.svc.svc import SVC_2D
 
@@ -10,6 +7,6 @@ if __name__ == "__main__":
     print(problem)
     print(
         solve(problem,
-              r=3, eps=0.01,
-              alg='mpi')
+              r=4, eps=0.01,
+              alg='async', num_proc=4)
     )
