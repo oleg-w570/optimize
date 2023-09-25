@@ -1,3 +1,4 @@
+from time import perf_counter
 from modules.utility.interval import Interval
 from modules.utility.point import Point
 from modules.core.solver import Solver
@@ -14,6 +15,7 @@ class MPISolver(Solver):
         self.sequential_iterations_for_begin()
         mindelta: float = float('inf')
         niter: int = 1
+        start_time = perf_counter()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
             all_old_intrvls: list[Interval] = []
             for _ in range(size):
@@ -36,6 +38,7 @@ class MPISolver(Solver):
             for trial in zip(all_new_r, all_new_intrvls):
                 self.trial_data.insert(*trial)
             niter += 1
+        self._solution.time = perf_counter() - start_time
         self._solution.accuracy = mindelta
         self._solution.niter = niter
 

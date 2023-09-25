@@ -1,3 +1,4 @@
+from time import perf_counter
 from modules.utility.interval import Interval
 from modules.utility.point import Point
 from modules.core.solver import Solver
@@ -6,7 +7,7 @@ from mpi4py import MPI
 from pathos.pools import ProcessPool
 
 
-class MpiPoolSolver(Solver):
+class MPIPoolSolver(Solver):
     def get_intrvls_with_max_r(self) -> list[list[Interval]]:
         intrvls: list[Interval] = []
         for _ in range(min(MPI.COMM_WORLD.size * self.num_proc, self.trial_data.size())):
@@ -25,6 +26,7 @@ class MpiPoolSolver(Solver):
         niter: int = 0
 
         with ProcessPool(self.num_proc) as pool:
+            start_time = perf_counter()
             while mindelta > self.stop.eps and niter < self.stop.maxiter:
                 if rank == 0:
                     all_old_intrvls = self.get_intrvls_with_max_r()
@@ -59,6 +61,7 @@ class MpiPoolSolver(Solver):
                     for trial in zip(all_new_r, all_new_intrvls):
                         self.trial_data.insert(*trial)
                 niter += 1
+                self._solution.time = perf_counter() - start_time
             self._solution.accuracy = mindelta
             self._solution.niter = niter
 

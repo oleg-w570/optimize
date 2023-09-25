@@ -1,3 +1,4 @@
+from time import perf_counter
 import pathos.multiprocessing as mp
 from itertools import chain
 
@@ -32,6 +33,7 @@ class ParallelSolver(Solver):
         mindelta: float = float('inf')
         niter: int = 0
         with mp.ProcessingPool(self.num_proc) as pool:
+            start_time = perf_counter()
             while mindelta > self.stop.eps and niter < self.stop.maxiter:
                 old_intrvls = self.get_intrvls_with_max_r()
                 mindelta = min(old_intrvls, key=(lambda x: x.delta)).delta
@@ -49,5 +51,6 @@ class ParallelSolver(Solver):
                 for trial in zip(new_r, new_intrvls):
                     self.trial_data.insert(*trial)
                 niter += 1
+            self._solution.time = perf_counter() - start_time
         self._solution.accuracy = mindelta
         self._solution.niter = niter
