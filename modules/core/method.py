@@ -22,7 +22,7 @@ class Method:
         self.m: float = 1
         self.optimum: float = float('inf')
 
-    def update_m(self, m: float) -> bool:
+    def update_holder_const(self, m: float) -> bool:
         is_update = m > self.m
         self.m = m if is_update else self.m
         return is_update        
@@ -39,7 +39,7 @@ class Method:
         return (rx - lx) ** (1 / n)
 
     @staticmethod
-    def lipschitz_const(interval: Interval) -> float:
+    def holder_const(interval: Interval) -> float:
         rz = interval.right.z
         lz = interval.left.z
         delta = interval.delta
@@ -58,7 +58,7 @@ class Method:
         return (delta + (rz - lz) * (rz - lz) / (r * r * m * m * delta) -
                 2 * (rz + lz - 2 * z_opt) / (r * m))
 
-    def first_points(self) -> tuple[Point, Point]:
+    def boundary_points(self) -> tuple[Point, Point]:
         lx = 0.0
         ly = self.evolvent.get_image(lx)
         lz = self.problem.calculate(ly)
