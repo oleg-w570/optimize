@@ -26,7 +26,7 @@ class Worker(Process):
             point = self.method.next_point(intrvl)
             new_intrvls = self.method.split_interval(intrvl, point)
             new_r = map(self.method.characteristic, new_intrvls)
-            new_m = map(self.method.lipschitz_const, new_intrvls)
+            new_m = map(self.method.holder_const, new_intrvls)
             self.done.put_nowait((new_m, new_r, new_intrvls))
 
 
@@ -53,7 +53,7 @@ class AsyncSolver(Solver):
             for trial in zip(new_r, new_intrvls):  # здесь и далее идёт обработка полученных данных
                 self.trial_data.insert(*trial)
             point = new_intrvls[0].right
-            self.recalc |= self.method.update_m(max(new_m))
+            self.recalc |= self.method.update_holder_const(max(new_m))
             self.recalc |= self.method.update_optimum(point)
             released_process = 1  # ставим счётчик процессов, завершивших работу на текущей итерации
             while not self.done.empty():  # далее проверяем очередь готовых данных, так же обрабатываем их, и увеличиваем счётчик
@@ -61,7 +61,7 @@ class AsyncSolver(Solver):
                 for trial in zip(new_r, new_intrvls):
                     self.trial_data.insert(*trial)
                 point = new_intrvls[0].right
-                self.recalc |= self.method.update_m(max(new_m))
+                self.recalc |= self.method.update_holder_const(max(new_m))
                 self.recalc |= self.method.update_optimum(point)
                 released_process += 1
             self.recalculate()  # проверяем нужно ли пересчитать характеристики всех интервалов
@@ -98,8 +98,8 @@ class AsyncSolver(Solver):
             old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
             point = self.method.next_point(old_intrvl)
             new_intrvl = self.method.split_interval(old_intrvl, point)
-            new_m = map(self.method.lipschitz_const, new_intrvl)
-            self.recalc |= self.method.update_m(max(new_m))
+            new_m = map(self.method.holder_const, new_intrvl)
+            self.recalc |= self.method.update_holder_const(max(new_m))
             self.recalc |= self.method.update_optimum(point)
             self.recalculate()
             new_r = map(self.method.characteristic, new_intrvl)

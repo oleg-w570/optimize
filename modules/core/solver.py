@@ -26,11 +26,11 @@ class Solver(ABC):
         pass
 
     def first_iteration(self):
-        lpoint, rpoint = self.method.first_points()
+        lpoint, rpoint = self.method.boundary_points()
         first_interval = Interval(rpoint)
         first_interval.left = lpoint
         first_interval.delta = self.method.delta(first_interval)
-        self.method.m = self.method.lipschitz_const(first_interval)
+        self.method.m = self.method.holder_const(first_interval)
         self.trial_data.insert(-1, first_interval)
 
     def recalculate(self) -> None:

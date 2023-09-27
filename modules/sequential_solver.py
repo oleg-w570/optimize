@@ -17,8 +17,8 @@ class SequentialSolver(Solver):
             point: Point = self.method.next_point(old_intrvl)
             new_intrvls = self.method.split_interval(old_intrvl, point)
 
-            new_m = map(self.method.lipschitz_const, new_intrvls)
-            self.recalc |= self.method.update_m(max(new_m))
+            new_m = map(self.method.holder_const, new_intrvls)
+            self.recalc |= self.method.update_holder_const(max(new_m))
             self.recalc |= self.method.update_optimum(point)
             self.recalculate()
 

@@ -46,10 +46,10 @@ class MPIPoolSolver(Solver):
                 loc_new_intrvls = list(chain.from_iterable(loc_new_intrvls))
                 all_new_intrvls = comm.gather(loc_new_intrvls, 0)
 
-                loc_new_m: list[float] = pool.map(self.method.lipschitz_const, loc_new_intrvls)
+                loc_new_m: list[float] = pool.map(self.method.holder_const, loc_new_intrvls)
                 loc_max_m: float = max(loc_new_m)
                 max_m: float = comm.allreduce(loc_max_m, MPI.MAX)
-                self.recalc |= self.method.update_m(max_m)
+                self.recalc |= self.method.update_holder_const(max_m)
 
                 loc_new_r: list[float] = pool.map(self.method.characteristic, loc_new_intrvls)
                 all_new_r: list[list[float]] = comm.gather(loc_new_r, 0)
@@ -70,8 +70,8 @@ class MPIPoolSolver(Solver):
             old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
             point: Point = self.method.next_point(old_intrvl)
             new_intrvl = self.method.split_interval(old_intrvl, point)
-            new_m = map(self.method.lipschitz_const, new_intrvl)
-            self.recalc |= self.method.update_m(max(new_m))
+            new_m = map(self.method.holder_const, new_intrvl)
+            self.recalc |= self.method.update_holder_const(max(new_m))
             self.recalc |= self.method.update_optimum(point)
             self.recalculate()
             new_r = map(self.method.characteristic, new_intrvl)
