@@ -1,6 +1,6 @@
 from modules.mpi_pool_solver import MPIPoolSolver
 from modules.mpi_solver import MPISolver
-from modules.parallel_solver import ParallelSolver
+from modules.pool_solver import PoolSolver
 from modules.sequential_solver import SequentialSolver
 from modules.utility.parameters import Parameters
 from modules.utility.problem import Problem
@@ -10,7 +10,7 @@ from modules.utility.stopcondition import StopCondition
 
 def solve(problem: Problem, *,
           eps: float = 0.01, max_iter: int = 100000,
-          alg: str = 'seq', num_proc: int = 4,
+          alg: str = 'seq', num_proc: int = 1,
           r: float = 4
           ) -> Solution:
     stop = StopCondition(eps, max_iter)
@@ -18,8 +18,8 @@ def solve(problem: Problem, *,
     match alg:
         case 'seq':
             solver = SequentialSolver(problem, stop, param)
-        case 'parallel':
-            solver = ParallelSolver(problem, stop, param)
+        case 'pool':
+            solver = PoolSolver(problem, stop, param)
         case 'mpi':
             solver = MPISolver(problem, stop, param)
         case 'mpipool':

@@ -17,7 +17,7 @@ if __name__ == '__main__':
                     alg='seq')
         print(sol)
         iter_counts.append(sol.niter)
-        # if sol.optimum.z < z_opt + 9e-2:
+        # if sol.optimum.z < problem.optimum.z + 9e-2:
         #     iter_counts.append(sol.niter)
         print("--------------------------------------")
     acc = 0

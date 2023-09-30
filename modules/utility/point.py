@@ -2,7 +2,7 @@ class Point:
     def __init__(self,
                  x: float,
                  y: list[float],
-                 z: float):
+                 z: float = None):
         self.x = x
         self.y = y
         self.z = z

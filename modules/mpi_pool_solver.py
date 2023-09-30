@@ -1,13 +1,13 @@
 from time import perf_counter
 from modules.utility.interval import Interval
 from modules.utility.point import Point
-from modules.core.solver import Solver
+from modules.core.solver_base import SolverBase
 from itertools import chain
 from mpi4py import MPI
 from pathos.pools import ProcessPool
 
 
-class MPIPoolSolver(Solver):
+class MPIPoolSolver(SolverBase):
     def get_intrvls_with_max_r(self) -> list[list[Interval]]:
         intrvls: list[Interval] = []
         for _ in range(min(MPI.COMM_WORLD.size * self.num_proc, self.trial_data.size())):
@@ -54,7 +54,7 @@ class MPIPoolSolver(Solver):
                 loc_new_r: list[float] = pool.map(self.method.characteristic, loc_new_intrvls)
                 all_new_r: list[list[float]] = comm.gather(loc_new_r, 0)
                 if rank == 0:
-                    self.recalculate()
+                    self.recalc_characteristics()
                     all_new_intrvls = list(chain.from_iterable(all_new_intrvls))
                     all_new_r = list(chain.from_iterable(all_new_r))
 
@@ -73,7 +73,7 @@ class MPIPoolSolver(Solver):
             new_m = map(self.method.holder_const, new_intrvl)
             self.recalc |= self.method.update_holder_const(max(new_m))
             self.recalc |= self.method.update_optimum(point)
-            self.recalculate()
+            self.recalc_characteristics()
             new_r = map(self.method.characteristic, new_intrvl)
             for trial in zip(new_r, new_intrvl):
                 self.trial_data.insert(*trial)

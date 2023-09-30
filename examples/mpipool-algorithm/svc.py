@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.append(os.getcwd())
 from modules.solve import solve
 from problems.svc.svc import SVC_2D
 
