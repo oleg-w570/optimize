@@ -1,12 +1,11 @@
 from modules.solve import solve
-from problems.svc.svc import SVC_2D
-
+from problems.grishagin.grishagin import Grishagin
 
 if __name__ == "__main__":
-    problem = SVC_2D()
+    problem = Grishagin(10)
     print(problem)
     print(
         solve(problem,
               r=4, eps=0.01,
-              alg='seq')
+              alg='pool', num_proc=4)
     )

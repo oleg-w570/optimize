@@ -8,5 +8,5 @@ if __name__ == "__main__":
     print(
         solve(problem,
               r=4, eps=0.01,
-              alg='parallel', num_proc=4)
+              alg='pool', num_proc=4)
     )

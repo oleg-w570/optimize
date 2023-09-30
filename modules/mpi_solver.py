@@ -1,12 +1,12 @@
 from time import perf_counter
 from modules.utility.interval import Interval
 from modules.utility.point import Point
-from modules.core.solver import Solver
+from modules.core.solver_base import SolverBase
 from itertools import chain
 from mpi4py import MPI
 
 
-class MPISolver(Solver):
+class MPISolver(SolverBase):
     def solve(self):
         comm = MPI.COMM_WORLD
         size = comm.Get_size()

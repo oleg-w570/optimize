@@ -2,9 +2,11 @@ from modules.utility.point import Point
 
 
 class Interval:
-    def __init__(self, point: Point):
-        self.right: Point = point
-        self.left: Point = None
+    def __init__(self,
+                 right_point: Point,
+                 left_point: Point = None):
+        self.right: Point = right_point
+        self.left: Point = left_point
         self.delta: float = -1
 
     def __repr__(self):

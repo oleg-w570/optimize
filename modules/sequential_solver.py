@@ -1,10 +1,10 @@
 from time import perf_counter
-from modules.core.solver import Solver
+from modules.core.solver_base import SolverBase
 from modules.utility.point import Point
 from modules.utility.interval import Interval
 
 
-class SequentialSolver(Solver):
+class SequentialSolver(SolverBase):
     def solve(self):
         self.first_iteration()
         mindelta: float = float('inf')
@@ -15,12 +15,13 @@ class SequentialSolver(Solver):
             mindelta = old_intrvl.delta
 
             point: Point = self.method.next_point(old_intrvl)
+            point.z = self.problem.calculate(point.y)
             new_intrvls = self.method.split_interval(old_intrvl, point)
 
             new_m = map(self.method.holder_const, new_intrvls)
             self.recalc |= self.method.update_holder_const(max(new_m))
             self.recalc |= self.method.update_optimum(point)
-            self.recalculate()
+            self.recalc_characteristics()
 
             new_r = map(self.method.characteristic, new_intrvls)
             for trial in zip(new_r, new_intrvls):

@@ -15,7 +15,7 @@ if __name__ == "__main__":
         print(problem)
         sol = solve(problem,
                     r=r, eps=eps,
-                    alg='parallel', num_proc=n)
+                    alg='mpipool', num_proc=n)
         print(sol)
         iter_counts.append(sol.niter)
         # if sol.optimum.z < z_opt + 9e-2:
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     for i in range(0, max(iter_counts) + 1):
         acc += iter_counts.count(i)
         percent.append(acc)
-    plt.title(f'Операционная характеристика\nПараллельная версия АГП\n'
+    plt.title(f'Операционная характеристика\nПараллельная версия АГП (mpi+pool)\n'
               f'Функции Гришагина\nr = {r}, num_proc = {n}, eps = {eps}')
     plt.xlabel('Количество итераций')
     plt.ylabel('% решённых задач')

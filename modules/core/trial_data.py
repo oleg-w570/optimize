@@ -26,6 +26,12 @@ class TrialData:
         
     def get_intrvl_with_max_r(self) -> Interval:
         return heapq.heappop(self.queue).interval
+
+    def get_n_intrvls_with_max_r(self, n: int) -> list[Interval]:
+        intervals = []
+        for _ in range(n):
+            intervals.append(heapq.heappop(self.queue).interval)
+        return intervals
     
     def refill(self):
         heapq.heapify(self.queue)
