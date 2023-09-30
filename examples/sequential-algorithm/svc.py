@@ -7,6 +7,6 @@ if __name__ == "__main__":
     print(problem)
     print(
         solve(problem,
-              r=2.5, eps=0.01,
+              r=4, eps=0.01,
               alg='seq')
     )

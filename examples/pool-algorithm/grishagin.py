@@ -1,12 +1,11 @@
 from modules.solve import solve
-from problems.gkls.gkls import GKLS
-
+from problems.grishagin.grishagin import Grishagin
 
 if __name__ == "__main__":
-    problem = GKLS(10)
+    problem = Grishagin(10)
     print(problem)
     print(
         solve(problem,
               r=4, eps=0.01,
-              alg='parallel', num_proc=4)
+              alg='pool', num_proc=4)
     )

@@ -1,12 +1,12 @@
 from modules.solve import solve
-from problems.svc.svc import SVC_2D
+from problems.gkls.gkls import GKLS
 
 
 if __name__ == "__main__":
-    problem = SVC_2D()
+    problem = GKLS(92)
     print(problem)
     print(
         solve(problem,
               r=4, eps=0.01,
-              alg='parallel', num_proc=4)
+              alg='pool', num_proc=4)
     )
