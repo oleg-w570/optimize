@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
-from modules.core.trial_data import TrialData
-from modules.utility.problem import Problem
-from modules.utility.stopcondition import StopCondition
-from modules.utility.parameters import Parameters
-from modules.utility.solution import Solution
-from modules.utility.interval import Interval
+
 from modules.core.method import Method
+from modules.core.trial_data import TrialData
+from modules.utility.interval import Interval
+from modules.utility.parameters import Parameters
+from modules.utility.problem import Problem
+from modules.utility.solution import Solution
+from modules.utility.stopcondition import StopCondition
 
 
 class SolverBase(ABC):
-    def __init__(self,
-                 problem: Problem,
-                 stopcondition: StopCondition,
-                 parameters: Parameters):
+    def __init__(
+        self, problem: Problem, stopcondition: StopCondition, parameters: Parameters
+    ):
         self.problem: Problem = problem
         self.method: Method = Method(problem, parameters)
         self.num_proc: int = parameters.num_proc
@@ -33,7 +33,6 @@ class SolverBase(ABC):
         self.method.optimum = min(lpoint.z, rpoint.z)
         self.trial_data.insert(-1, first_interval)
 
-            
     def recalc_characteristics(self) -> None:
         if self.recalc:
             for trial in self.trial_data:
@@ -43,8 +42,7 @@ class SolverBase(ABC):
 
     @property
     def solution(self) -> Solution:
-        points = list(map(lambda trial: trial.interval.right,
-                          self.trial_data.queue))
+        points = list(map(lambda trial: trial.interval.right, self.trial_data.queue))
         self._solution.points = points
         self._solution.ntrial = len(points)
         self._solution.optimum = min(points)

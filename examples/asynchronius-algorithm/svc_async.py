@@ -5,8 +5,4 @@ from problems.svc.svc import SVC_2D
 if __name__ == "__main__":
     problem = SVC_2D()
     print(problem)
-    print(
-        solve(problem,
-              r=4, eps=0.01,
-              alg='async', num_proc=4)
-    )
+    print(solve(problem, r=4, eps=0.01, alg="async", num_proc=8))

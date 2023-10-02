@@ -1,10 +1,11 @@
-import numpy as np
-import problems.grishagin.grishagin_generation as grishaginGen
 import math
+
+import numpy as np
+
+import problems.grishagin.grishagin_generation as grishaginGen
 
 
 class GrishaginFunction:
-
     def __init__(self, function_number: int):
         self.dimension = 2
         self.icnf = np.ndarray(shape=(45,), dtype=np.dtype(int))
@@ -46,8 +47,16 @@ class GrishaginFunction:
 
         for i in range(0, 7):
             for j in range(0, 7):
-                d1 = d1 + self.af[i][j] * snx[i] * sny[j] + self.bf[i][j] * csx[i] * csy[j]
-                d2 = d2 + self.cf[i][j] * snx[i] * sny[j] - self.df[i][j] * csx[i] * csy[j]
+                d1 = (
+                    d1
+                    + self.af[i][j] * snx[i] * sny[j]
+                    + self.bf[i][j] * csx[i] * csy[j]
+                )
+                d2 = (
+                    d2
+                    + self.cf[i][j] * snx[i] * sny[j]
+                    - self.df[i][j] * csx[i] * csy[j]
+                )
 
         value = -1 * math.sqrt(d1 * d1 + d2 * d2)
 
@@ -68,12 +77,12 @@ class GrishaginFunction:
 
         for j in range(0, 7):
             for i in range(0, 7):
-                self.af[i][j] = 2. * self.rndm20(self.icnf) - 1.
-                self.cf[i][j] = 2. * self.rndm20(self.icnf) - 1.
+                self.af[i][j] = 2.0 * self.rndm20(self.icnf) - 1.0
+                self.cf[i][j] = 2.0 * self.rndm20(self.icnf) - 1.0
         for j in range(0, 7):
             for i in range(0, 7):
-                self.bf[i][j] = 2. * self.rndm20(self.icnf) - 1.
-                self.df[i][j] = 2. * self.rndm20(self.icnf) - 1.
+                self.bf[i][j] = 2.0 * self.rndm20(self.icnf) - 1.0
+                self.df[i][j] = 2.0 * self.rndm20(self.icnf) - 1.0
 
     def rndm20(self, k: np.array) -> np.double:
         k1 = np.ndarray(shape=(45,), dtype=np.dtype(int))
@@ -90,8 +99,8 @@ class GrishaginFunction:
         self.gen(k, k1, 9, 44)
         self.gen(k, k1, 0, 8)
 
-        rndm = 0.
-        de2 = 1.
+        rndm = 0.0
+        de2 = 1.0
         for i in range(0, 36):
             de2 = de2 / 2
             rndm = rndm + k[i + 9] * de2

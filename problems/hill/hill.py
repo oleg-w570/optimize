@@ -16,4 +16,3 @@ class Hill(Problem):
     def calculate(self, point: list[float]) -> float:
         value = self.function(point[0])
         return value
-    

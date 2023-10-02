@@ -12,5 +12,3 @@ class Calculator:
     def work(y: list[float]) -> float:
         z = Calculator.problem.calculate(y)
         return z
-
-

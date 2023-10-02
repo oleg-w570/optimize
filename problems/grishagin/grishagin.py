@@ -9,12 +9,13 @@ class Grishagin(Problem):
         self.name = f"Grishagin {function_number}"
         self.function = GrishaginFunction(function_number)
         self.dim = 2
-        self.lower_bound = [0., 0.]
-        self.upper_bound = [1., 1.]
-        self.optimum = Point(0.,
-                             self.function.GetOptimumPoint(),
-                             self.function.Calculate(self.function.GetOptimumPoint())
-                             )
+        self.lower_bound = [0.0, 0.0]
+        self.upper_bound = [1.0, 1.0]
+        self.optimum = Point(
+            0.0,
+            self.function.GetOptimumPoint(),
+            self.function.Calculate(self.function.GetOptimumPoint()),
+        )
 
     def calculate(self, point: list[float]) -> float:
         value = self.function.Calculate(point)

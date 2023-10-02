@@ -1,4 +1,5 @@
 from statistics import mean
+
 from modules.solve import solve
 from problems.svc.svc import SVC_2D
 

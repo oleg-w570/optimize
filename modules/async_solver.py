@@ -1,5 +1,6 @@
 from multiprocessing import Process, Queue
 from time import perf_counter
+
 from modules.core.solver_base import SolverBase
 from modules.utility.interval import Interval
 from modules.utility.parameters import Parameters
@@ -36,12 +37,12 @@ class AsyncSolver(SolverBase):
     def solve(self):
         self.first_iteration()
         self.start_workers()
-        self.iterations_to_begin()
         number_finished_proc = self.num_proc
         waiting_intrvls: list[Interval] = []
         mindelta: float = float("inf")
-        niter: int = 0
+        niter: int = self.num_proc
         start_time = perf_counter()
+        self.iterations_to_begin()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
             old_intrvls = self.trial_data.get_n_intrvls_with_max_r(number_finished_proc)
             points: list[Point] = list(map(self.method.next_point, old_intrvls))

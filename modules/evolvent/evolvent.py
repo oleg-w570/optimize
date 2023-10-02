@@ -2,12 +2,13 @@ import math
 
 
 class Evolvent:
-    def __init__(self,
-                 lower_bound: list[float] = [],
-                 upper_bound: list[float] = [],
-                 dimension: int = 1,
-                 evolvent_density: int = 10
-                 ):
+    def __init__(
+        self,
+        lower_bound: list[float],
+        upper_bound: list[float],
+        dimension: int = 1,
+        evolvent_density: int = 10,
+    ):
         self.dim = dimension
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
@@ -22,12 +23,13 @@ class Evolvent:
 
     def __transform_p2d(self):
         for i in range(0, self.dim):
-            self.y[i] = self.y[i] * (
-                    self.upper_bound[i] - self.lower_bound[i]) + \
-                              (self.upper_bound[i] + self.lower_bound[i]) / 2
+            self.y[i] = (
+                self.y[i] * (self.upper_bound[i] - self.lower_bound[i])
+                + (self.upper_bound[i] + self.lower_bound[i]) / 2
+            )
 
     def __y_on_x(self, _x: float) -> list[float]:
-        self.y = [0.] * self.dim
+        self.y = [0.0] * self.dim
 
         if self.dim == 1:
             self.y[0] = _x - 0.5
@@ -69,13 +71,13 @@ class Evolvent:
 
         return self.y
 
-    def __calculate_node(self,
-                         iis: float,
-                         n: int,
-                         u: list[int],
-                         v: list[int],
-                         ) -> int:
-
+    def __calculate_node(
+        self,
+        iis: float,
+        n: int,
+        u: list[int],
+        v: list[int],
+    ) -> int:
         iq = 1
         n1 = n - 1
         node = 0

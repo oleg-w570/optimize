@@ -9,30 +9,30 @@ from modules.utility.solution import Solution
 from modules.utility.stopcondition import StopCondition
 
 
-def solve(problem: Problem, *,
-          eps: float = 0.01, max_iter: int = 100000,
-          alg: str = 'seq', num_proc: int = 1,
-          r: float = 4
-          ) -> Solution:
+def solve(
+    problem: Problem,
+    *,
+    eps: float = 0.01,
+    max_iter: int = 100000,
+    alg: str = "seq",
+    num_proc: int = 1,
+    r: float = 4,
+) -> Solution:
     stop = StopCondition(eps, max_iter)
     param = Parameters(r, num_proc)
     match alg:
-        case 'seq':
+        case "seq":
             solver = SequentialSolver(problem, stop, param)
-        case 'pool':
+        case "pool":
             solver = PoolSolver(problem, stop, param)
-        case 'mpi':
+        case "mpi":
             solver = MPISolver(problem, stop, param)
-        case 'mpipool':
+        case "mpipool":
             solver = MPIPoolSolver(problem, stop, param)
-        case 'async':
+        case "async":
             solver = AsyncSolver(problem, stop, param)
         case _:
-            print('Wrong algorithm')
+            print("Wrong algorithm")
             return Solution()
     solver.solve()
     return solver.solution
-
-
-
-

@@ -1,10 +1,9 @@
 from sklearn.datasets import load_breast_cancer
-from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
+from sklearn.svm import SVC
 from sklearn.utils import shuffle
 
 from modules.utility.point import Point
-
 from modules.utility.problem import Problem
 
 

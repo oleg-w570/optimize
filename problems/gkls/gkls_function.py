@@ -1,6 +1,5 @@
-from time import sleep
-
 import numpy as np
+
 from problems.gkls.gkls_random import GKLSRandomGenerator
 
 
@@ -42,6 +41,7 @@ from problems.gkls.gkls_random import GKLSRandomGenerator
 #  (4) radius of the attraction region of the global minimizer               #
 # ***************************************************************************#
 
+
 class T_GKLS_Minima:
     def __init__(self):
         self.f = np.zeros(1, dtype=np.double)  # list of local minima values *#
@@ -73,13 +73,15 @@ class GKLSFuncionType:
 
 
 class GKLSParameters:
-    def __init__(self,
-                 _dimension,
-                 _globalMinimumValue,
-                 _numberOfLocalMinima,
-                 _globalDistance,
-                 _globalRadius,
-                 _GKLStype):
+    def __init__(
+        self,
+        _dimension,
+        _globalMinimumValue,
+        _numberOfLocalMinima,
+        _globalDistance,
+        _globalRadius,
+        _GKLStype,
+    ):
         self.dimension = _dimension
         self.globalMinimumValue = _globalMinimumValue
         self.numberOfLocalMinima = _numberOfLocalMinima
@@ -90,10 +92,10 @@ class GKLSParameters:
 
 class GKLSFunction:
     # Penalty value of the generated function if x is not in D *#
-    GKLS_MAX_VALUE = 1E+100
+    GKLS_MAX_VALUE = 1e100
 
     # Value of the machine zero in the floating-point arithmetic *#
-    GKLS_PRECISION = 1.0E-10
+    GKLS_PRECISION = 1.0e-10
 
     # Default value of the paraboloid minimum *#
     GKLS_PARABOLOID_MIN = 0.0
@@ -144,15 +146,21 @@ class GKLSFunction:
 
         # -------------- Variables accessible by the user ---------------------
         # *#
-        self.GKLS_domain_left = np.zeros(1, dtype=np.double)  # left boundary vector of D *#
+        self.GKLS_domain_left = np.zeros(
+            1, dtype=np.double
+        )  # left boundary vector of D *#
         # D=[GKLS_domain_left; GKLS_domain_ight] *#
-        self.GKLS_domain_right = np.zeros(1, dtype=np.double)  # right boundary vector of D *#
+        self.GKLS_domain_right = np.zeros(
+            1, dtype=np.double
+        )  # right boundary vector of D *#
 
         self.GKLS_dim = 0  # dimension of the problem, *#
         # 2<=test_dim<NUM_RND (see random) *#
         self.GKLS_num_minima = 0  # number of local minima, >=2 *#
 
-        self.GKLS_global_dist = np.double(0)  # distance from the paraboloid minimizer *#
+        self.GKLS_global_dist = np.double(
+            0
+        )  # distance from the paraboloid minimizer *#
         # to the global minimizer *#
         self.GKLS_global_radius = np.double(0)  # radius of the global minimizer *#
         # attraction region *#
@@ -207,37 +215,52 @@ class GKLSFunction:
             return GKLSFunction.GKLS_MAX_VALUE
 
         for i in range(self.GKLS_dim):
-            if ((x[i] < self.GKLS_domain_left[i] - GKLSFunction.GKLS_PRECISION) or (
-                    x[i] > self.GKLS_domain_right[i] + GKLSFunction.GKLS_PRECISION)):
+            if (x[i] < self.GKLS_domain_left[i] - GKLSFunction.GKLS_PRECISION) or (
+                x[i] > self.GKLS_domain_right[i] + GKLSFunction.GKLS_PRECISION
+            ):
                 return GKLSFunction.GKLS_MAX_VALUE
         # Check wether x belongs to some basin of local minima, M(index) <> T *#
         # Attention: number of local minima must be >= 2 *#
         index = 1
-        while ((index < self.GKLS_num_minima) and (
-                self.GKLS_norm(self.GKLS_minima.local_min[index], x) > self.GKLS_minima.rho[index])):
+        while (index < self.GKLS_num_minima) and (
+            self.GKLS_norm(self.GKLS_minima.local_min[index], x)
+            > self.GKLS_minima.rho[index]
+        ):
             index = index + 1
 
-        if (index == self.GKLS_num_minima):
+        if index == self.GKLS_num_minima:
             norm = self.GKLS_norm(self.GKLS_minima.local_min[0], x)
             # * Return the value of the paraboloid function *#
-            return (norm * norm + self.GKLS_minima.f[0])
+            return norm * norm + self.GKLS_minima.f[0]
 
         # Check wether x coincides with the local minimizer M(index) *#
-        if (self.GKLS_norm(x, self.GKLS_minima.local_min[index]) < GKLSFunction.GKLS_PRECISION):
+        if (
+            self.GKLS_norm(x, self.GKLS_minima.local_min[index])
+            < GKLSFunction.GKLS_PRECISION
+        ):
             return self.GKLS_minima.f[index]
 
-        norm = self.GKLS_norm(self.GKLS_minima.local_min[0], self.GKLS_minima.local_min[index])
+        norm = self.GKLS_norm(
+            self.GKLS_minima.local_min[0], self.GKLS_minima.local_min[index]
+        )
         a = norm * norm + self.GKLS_minima.f[0] - self.GKLS_minima.f[index]
         rho = self.GKLS_minima.rho[index]
         norm = self.GKLS_norm(self.GKLS_minima.local_min[index], x)
         scal = 0.0
         for i in range(self.GKLS_dim):
             scal += (x[i] - self.GKLS_minima.local_min[index][i]) * (
-                    self.GKLS_minima.local_min[0][i] - self.GKLS_minima.local_min[index][i])
+                self.GKLS_minima.local_min[0][i] - self.GKLS_minima.local_min[index][i]
+            )
         # Return the value of the cubic interpolation function *#
         res = np.double(0)
-        res = (2.0 / rho / rho * scal / norm - 2.0 * a / rho / rho / rho) * norm * norm * norm + (
-                1.0 - 4.0 * scal / norm / rho + 3.0 * a / rho / rho) * norm * norm + self.GKLS_minima.f[index]
+        res = (
+            (2.0 / rho / rho * scal / norm - 2.0 * a / rho / rho / rho)
+            * norm
+            * norm
+            * norm
+            + (1.0 - 4.0 * scal / norm / rho + 3.0 * a / rho / rho) * norm * norm
+            + self.GKLS_minima.f[index]
+        )
         return res
 
     def GKLS_norm(self, x1, x2):
@@ -251,10 +274,10 @@ class GKLSFunction:
         self.GKLS_dim = classDimension
         self.mDimension = self.GKLS_dim
         self.GKLS_num_minima = 10
-        if (self.mIsDomainMemeoryAllocated):
+        if self.mIsDomainMemeoryAllocated:
             self.GKLS_domain_free()
 
-        if (_GKLStype == GKLSClass.Simple):
+        if _GKLStype == GKLSClass.Simple:
             if self.mDimension == 2:
                 self.GKLS_global_dist = 0.9
                 self.GKLS_global_radius = 0.2
@@ -275,7 +298,6 @@ class GKLSFunction:
                 self.GKLS_global_radius = 0.3
 
         else:
-
             if self.mDimension == 2:
                 self.GKLS_global_dist = 0.9
                 self.GKLS_global_radius = 0.1
@@ -317,22 +339,22 @@ class GKLSFunction:
         # but it should not be too small.  #
 
         # Check function number #
-        if ((nf < 1) or (nf > 100)):
+        if (nf < 1) or (nf > 100):
             return GKLSFunction.GKLS_FUNC_NUMBER_ERROR
 
         # Check parameters #
         error = self.GKLS_parameters_check()
-        if (error != GKLSFunction.GKLS_OK):
+        if error != GKLSFunction.GKLS_OK:
             return error
 
         # Allocate memory #
         error = self.GKLS_alloc()
-        if (error != GKLSFunction.GKLS_OK):
+        if error != GKLSFunction.GKLS_OK:
             return error
 
         # Set random seed #
         error = self.GKLS_initialize_rnd(self.GKLS_dim, self.GKLS_num_minima, nf)
-        if (error != GKLSFunction.GKLS_OK):
+        if error != GKLSFunction.GKLS_OK:
             return error
 
         self.mRndGenerator.GenerateNextNumbers()  # ranf_array(rnd_num, NUM_RND); # get random sequence #
@@ -342,15 +364,18 @@ class GKLSFunction:
         # Set the paraboloid minimizer coordinates and #
         # the paraboloid minimum value #
         for i in range(self.GKLS_dim):
-            self.GKLS_minima.local_min[0][i] = self.GKLS_domain_left[i] + self.rnd_num[self.rnd_counter] * (
-                    self.GKLS_domain_right[i] - self.GKLS_domain_left[i])
+            self.GKLS_minima.local_min[0][i] = self.GKLS_domain_left[i] + self.rnd_num[
+                self.rnd_counter
+            ] * (self.GKLS_domain_right[i] - self.GKLS_domain_left[i])
             self.rnd_counter += 1
-            if (self.rnd_counter == GKLSRandomGenerator.NUM_RND):
+            if self.rnd_counter == GKLSRandomGenerator.NUM_RND:
                 self.mRndGenerator.GenerateNextNumbers()  # ranf_array(rnd_num, NUM_RND);
                 self.rnd_counter = 0
 
         # for coordinates #
-        self.GKLS_minima.f[0] = GKLSFunction.GKLS_PARABOLOID_MIN  # fix the paraboloid min value #
+        self.GKLS_minima.f[
+            0
+        ] = GKLSFunction.GKLS_PARABOLOID_MIN  # fix the paraboloid min value #
 
         # Generate the global minimizer using generalized spherical
         # coordinates#
@@ -361,36 +386,67 @@ class GKLSFunction:
         self.mRndGenerator.GenerateNextNumbers()  # ranf_array(rnd_num, NUM_RND);
         self.rnd_counter = 0
 
-        self.GKLS_minima.local_min[1][0] = self.GKLS_minima.local_min[0][0] + self.GKLS_global_dist * np.cos(
-            GKLSFunction.PI * self.rnd_num[self.rnd_counter])
-        if ((self.GKLS_minima.local_min[1][0] > self.GKLS_domain_right[0] - GKLSFunction.GKLS_PRECISION) or (
-                self.GKLS_minima.local_min[1][0] < self.GKLS_domain_left[0] + GKLSFunction.GKLS_PRECISION)):
-            self.GKLS_minima.local_min[1][0] = self.GKLS_minima.local_min[0][0] - self.GKLS_global_dist * np.cos(
-                GKLSFunction.PI * self.rnd_num[self.rnd_counter])
+        self.GKLS_minima.local_min[1][0] = self.GKLS_minima.local_min[0][
+            0
+        ] + self.GKLS_global_dist * np.cos(
+            GKLSFunction.PI * self.rnd_num[self.rnd_counter]
+        )
+        if (
+            self.GKLS_minima.local_min[1][0]
+            > self.GKLS_domain_right[0] - GKLSFunction.GKLS_PRECISION
+        ) or (
+            self.GKLS_minima.local_min[1][0]
+            < self.GKLS_domain_left[0] + GKLSFunction.GKLS_PRECISION
+        ):
+            self.GKLS_minima.local_min[1][0] = self.GKLS_minima.local_min[0][
+                0
+            ] - self.GKLS_global_dist * np.cos(
+                GKLSFunction.PI * self.rnd_num[self.rnd_counter]
+            )
         sin_phi = np.sin(GKLSFunction.PI * self.rnd_num[self.rnd_counter])
         self.rnd_counter += 1
 
         # Generate the remaining angles 0<=phi(i)<=2*GKLSFunction.PI, and #
         # the coordinates x(i), i=1,...,GKLS_dim-2 (not last!) #
         for j in range(1, self.GKLS_dim - 1):
-            self.GKLS_minima.local_min[1][j] = self.GKLS_minima.local_min[0][j] + self.GKLS_global_dist * np.cos(
-                2.0 * GKLSFunction.PI * self.rnd_num[self.rnd_counter]) * sin_phi
-            if ((self.GKLS_minima.local_min[1][j] > self.GKLS_domain_right[j] - GKLSFunction.GKLS_PRECISION) or (
-                    self.GKLS_minima.local_min[1][j] < self.GKLS_domain_left[j] + GKLSFunction.GKLS_PRECISION)):
-                self.GKLS_minima.local_min[1][j] = self.GKLS_minima.local_min[0][j] - self.GKLS_global_dist * np.cos(
-                    2.0 * GKLSFunction.PI * self.rnd_num[self.rnd_counter]) * sin_phi
+            self.GKLS_minima.local_min[1][j] = (
+                self.GKLS_minima.local_min[0][j]
+                + self.GKLS_global_dist
+                * np.cos(2.0 * GKLSFunction.PI * self.rnd_num[self.rnd_counter])
+                * sin_phi
+            )
+            if (
+                self.GKLS_minima.local_min[1][j]
+                > self.GKLS_domain_right[j] - GKLSFunction.GKLS_PRECISION
+            ) or (
+                self.GKLS_minima.local_min[1][j]
+                < self.GKLS_domain_left[j] + GKLSFunction.GKLS_PRECISION
+            ):
+                self.GKLS_minima.local_min[1][j] = (
+                    self.GKLS_minima.local_min[0][j]
+                    - self.GKLS_global_dist
+                    * np.cos(2.0 * GKLSFunction.PI * self.rnd_num[self.rnd_counter])
+                    * sin_phi
+                )
             sin_phi *= np.sin(2.0 * GKLSFunction.PI * self.rnd_num[self.rnd_counter])
             self.rnd_counter = self.rnd_counter + 1
 
         # Generate the last coordinate x(GKLS_dim-1) #
-        self.GKLS_minima.local_min[1][self.GKLS_dim - 1] = \
-            self.GKLS_minima.local_min[0][self.GKLS_dim - 1] + self.GKLS_global_dist * sin_phi
-        if ((self.GKLS_minima.local_min[1][self.GKLS_dim - 1] >
-             self.GKLS_domain_right[self.GKLS_dim - 1] - GKLSFunction.GKLS_PRECISION) or
-                (self.GKLS_minima.local_min[1][self.GKLS_dim - 1] <
-                 self.GKLS_domain_left[self.GKLS_dim - 1] + GKLSFunction.GKLS_PRECISION)):
-            self.GKLS_minima.local_min[1][self.GKLS_dim - 1] = \
-                self.GKLS_minima.local_min[0][self.GKLS_dim - 1] - self.GKLS_global_dist * sin_phi
+        self.GKLS_minima.local_min[1][self.GKLS_dim - 1] = (
+            self.GKLS_minima.local_min[0][self.GKLS_dim - 1]
+            + self.GKLS_global_dist * sin_phi
+        )
+        if (
+            self.GKLS_minima.local_min[1][self.GKLS_dim - 1]
+            > self.GKLS_domain_right[self.GKLS_dim - 1] - GKLSFunction.GKLS_PRECISION
+        ) or (
+            self.GKLS_minima.local_min[1][self.GKLS_dim - 1]
+            < self.GKLS_domain_left[self.GKLS_dim - 1] + GKLSFunction.GKLS_PRECISION
+        ):
+            self.GKLS_minima.local_min[1][self.GKLS_dim - 1] = (
+                self.GKLS_minima.local_min[0][self.GKLS_dim - 1]
+                - self.GKLS_global_dist * sin_phi
+            )
 
         # Set the global minimum value #
         self.GKLS_minima.f[1] = self.GKLS_global_value
@@ -404,7 +460,7 @@ class GKLSFunction:
         # It is chosen randomly from (0,GKLS_DELTA_MAX_VALUE) #
         self.delta = GKLSFunction.GKLS_DELTA_MAX_VALUE * self.rnd_num[self.rnd_counter]
         self.rnd_counter += 1
-        if (self.rnd_counter == GKLSRandomGenerator.NUM_RND):
+        if self.rnd_counter == GKLSRandomGenerator.NUM_RND:
             self.mRndGenerator.GenerateNextNumbers()  # ranf_array(rnd_num, NUM_RND);
             self.rnd_counter = 0
 
@@ -414,33 +470,42 @@ class GKLSFunction:
         # The internal cycle do..while serves to choose local #
         # minimizers in certain distance from the attraction #
         # region of the global minimizer M(i) #
-        while (True):
+        while True:
             i = 2
-            while (i < self.GKLS_num_minima):
-                while (True):
+            while i < self.GKLS_num_minima:
+                while True:
                     self.mRndGenerator.GenerateNextNumbers()  # ranf_array(rnd_num, NUM_RND);
                     self.rnd_counter = 0
 
                     for j in range(self.GKLS_dim):
-                        self.GKLS_minima.local_min[i][j] = self.GKLS_domain_left[j] + self.rnd_num[self.rnd_counter] * (
-                                self.GKLS_domain_right[j] - self.GKLS_domain_left[j])
+                        self.GKLS_minima.local_min[i][j] = self.GKLS_domain_left[
+                            j
+                        ] + self.rnd_num[self.rnd_counter] * (
+                            self.GKLS_domain_right[j] - self.GKLS_domain_left[j]
+                        )
                         self.rnd_counter += 1
-                        if (self.rnd_counter == GKLSRandomGenerator.NUM_RND):
+                        if self.rnd_counter == GKLSRandomGenerator.NUM_RND:
                             self.mRndGenerator.GenerateNextNumbers()  # ranf_array(rnd_num, NUM_RND);
                             self.rnd_counter = 0
 
-                    if not ((self.GKLS_global_radius + gap) -
-                            self.GKLS_norm(self.GKLS_minima.local_min[i],
-                                           self.GKLS_minima.local_min[1]) > GKLSFunction.GKLS_PRECISION):
+                    if not (
+                        (self.GKLS_global_radius + gap)
+                        - self.GKLS_norm(
+                            self.GKLS_minima.local_min[i], self.GKLS_minima.local_min[1]
+                        )
+                        > GKLSFunction.GKLS_PRECISION
+                    ):
                         break
                 i += 1
             error = self.GKLS_coincidence_check()
-            if not ((error == GKLSFunction.GKLS_PARABOLA_MIN_COINCIDENCE_ERROR) or
-                    (error == GKLSFunction.GKLS_LOCAL_MIN_COINCIDENCE_ERROR)):
+            if not (
+                (error == GKLSFunction.GKLS_PARABOLA_MIN_COINCIDENCE_ERROR)
+                or (error == GKLSFunction.GKLS_LOCAL_MIN_COINCIDENCE_ERROR)
+            ):
                 break
 
         error = self.GKLS_set_basins()
-        if (error == GKLSFunction.GKLS_OK):
+        if error == GKLSFunction.GKLS_OK:
             self.isArgSet = 1  # All the parameters are set #
         # and the user can Calculate a specific test function or #
         # its partial derivative by calling corresponding subroutines #
@@ -448,45 +513,62 @@ class GKLSFunction:
         return error
 
     def GKLS_parameters_check(self):
-
         i = 0
         min_side = np.double(0)
         tmp = np.double(0)
 
-        if ((self.GKLS_dim <= 1) or (self.GKLS_dim >= GKLSRandomGenerator.NUM_RND)):
+        if (self.GKLS_dim <= 1) or (self.GKLS_dim >= GKLSRandomGenerator.NUM_RND):
             return GKLSFunction.GKLS_DIM_ERROR  # problem dimension errors #
-        if (self.GKLS_num_minima <= 1):  # number of local minima error #
+        if self.GKLS_num_minima <= 1:  # number of local minima error #
             return GKLSFunction.GKLS_NUM_MINIMA_ERROR
 
         for i in range(self.GKLS_dim):
-            if (self.GKLS_domain_left[i] >= self.GKLS_domain_right[i] - GKLSFunction.GKLS_PRECISION):
-                return GKLSFunction.GKLS_BOUNDARY_ERROR  # the boundaries are erroneous #
-        if (self.GKLS_global_value >= GKLSFunction.GKLS_PARABOLOID_MIN - GKLSFunction.GKLS_PRECISION):
-            return GKLSFunction.GKLS_GLOBAL_MIN_VALUE_ERROR  # the global minimum value must #
+            if (
+                self.GKLS_domain_left[i]
+                >= self.GKLS_domain_right[i] - GKLSFunction.GKLS_PRECISION
+            ):
+                return (
+                    GKLSFunction.GKLS_BOUNDARY_ERROR
+                )  # the boundaries are erroneous #
+        if (
+            self.GKLS_global_value
+            >= GKLSFunction.GKLS_PARABOLOID_MIN - GKLSFunction.GKLS_PRECISION
+        ):
+            return (
+                GKLSFunction.GKLS_GLOBAL_MIN_VALUE_ERROR
+            )  # the global minimum value must #
         # be less than the paraboloid min #
         # Find min_side = min |b(i)-a(i)|, D=[a,b], and #
         # check the distance from paraboloid vertex to global minimizer #
         min_side = self.GKLS_domain_right[0] - self.GKLS_domain_left[0]
         for i in range(self.GKLS_dim):
             tmp = self.GKLS_domain_right[i] - self.GKLS_domain_left[i]
-            if (tmp < min_side):
+            if tmp < min_side:
                 min_side = tmp
-        if ((self.GKLS_global_dist >= 0.5 * min_side - GKLSFunction.GKLS_PRECISION) or (
-                self.GKLS_global_dist <= GKLSFunction.GKLS_PRECISION)):
+        if (self.GKLS_global_dist >= 0.5 * min_side - GKLSFunction.GKLS_PRECISION) or (
+            self.GKLS_global_dist <= GKLSFunction.GKLS_PRECISION
+        ):
             return GKLSFunction.GKLS_GLOBAL_DIST_ERROR  # global distance error #
-        if ((self.GKLS_global_radius >= 0.5 * self.GKLS_global_dist + GKLSFunction.GKLS_PRECISION) or (
-                self.GKLS_global_radius <= GKLSFunction.GKLS_PRECISION)):
-            return GKLSFunction.GKLS_GLOBAL_RADIUS_ERROR  # global minimizer attr.  radius error #
+        if (
+            self.GKLS_global_radius
+            >= 0.5 * self.GKLS_global_dist + GKLSFunction.GKLS_PRECISION
+        ) or (self.GKLS_global_radius <= GKLSFunction.GKLS_PRECISION):
+            return (
+                GKLSFunction.GKLS_GLOBAL_RADIUS_ERROR
+            )  # global minimizer attr.  radius error #
 
         return GKLSFunction.GKLS_OK  # no errors #
 
     def GKLS_alloc(self):
-
-        if ((self.GKLS_dim <= 1) or (self.GKLS_dim >= GKLSRandomGenerator.NUM_RND)):
+        if (self.GKLS_dim <= 1) or (self.GKLS_dim >= GKLSRandomGenerator.NUM_RND):
             return GKLSFunction.GKLS_DIM_ERROR  # problem dimension error #
-        if (self.GKLS_num_minima <= 1):
-            return GKLSFunction.GKLS_NUM_MINIMA_ERROR  # erroneous number of local minima #
-        self.GKLS_minima.local_min = np.zeros((self.GKLS_num_minima, self.GKLS_dim), dtype=np.double)
+        if self.GKLS_num_minima <= 1:
+            return (
+                GKLSFunction.GKLS_NUM_MINIMA_ERROR
+            )  # erroneous number of local minima #
+        self.GKLS_minima.local_min = np.zeros(
+            (self.GKLS_num_minima, self.GKLS_dim), dtype=np.double
+        )
 
         self.GKLS_minima.w_rho = np.zeros(self.GKLS_num_minima, dtype=np.double)
         self.GKLS_minima.peak = np.zeros(self.GKLS_num_minima, dtype=np.double)
@@ -498,7 +580,6 @@ class GKLSFunction:
         return GKLSFunction.GKLS_OK  # no errors #
 
     def GKLS_initialize_rnd(self, dim, nmin, nf):
-
         seed = 0
         # seed number between 0 and 2^30-3 = 1,073,741,821#
 
@@ -506,31 +587,39 @@ class GKLSFunction:
         # If big values of nmin and dim are required, #
         # one must check wether seed <= 1073741821 #
 
-        self.mRndGenerator.Initialize(seed, self.rnd_num, self.rand_condition)  # ranf_start(seed);
+        self.mRndGenerator.Initialize(
+            seed, self.rnd_num, self.rand_condition
+        )  # ranf_start(seed);
 
         return GKLSFunction.GKLS_OK
 
     def GKLS_coincidence_check(self):
-
         i = 0
         j = 0
 
         # Check wether some local minimizer coincides with the paraboloid minimizer #
         for i in range(2, self.GKLS_num_minima):
-            if (self.GKLS_norm(self.GKLS_minima.local_min[i],
-                               self.GKLS_minima.local_min[0]) < GKLSFunction.GKLS_PRECISION):
+            if (
+                self.GKLS_norm(
+                    self.GKLS_minima.local_min[i], self.GKLS_minima.local_min[0]
+                )
+                < GKLSFunction.GKLS_PRECISION
+            ):
                 return GKLSFunction.GKLS_PARABOLA_MIN_COINCIDENCE_ERROR
 
         # Check wether there is a pair of identical local minimizers #
         for i in range(1, self.GKLS_num_minima - 1):
-            for i in range(i + 1, self.GKLS_num_minima):
-                if (self.GKLS_norm(self.GKLS_minima.local_min[i],
-                                   self.GKLS_minima.local_min[j]) < GKLSFunction.GKLS_PRECISION):
+            for j in range(i + 1, self.GKLS_num_minima):
+                if (
+                    self.GKLS_norm(
+                        self.GKLS_minima.local_min[i], self.GKLS_minima.local_min[j]
+                    )
+                    < GKLSFunction.GKLS_PRECISION
+                ):
                     return GKLSFunction.GKLS_LOCAL_MIN_COINCIDENCE_ERROR
         return GKLSFunction.GKLS_OK
 
     def GKLS_set_basins(self):
-
         i = 0
         j = 0
         temp_min = np.double(0)  # temporary  #
@@ -553,9 +642,11 @@ class GKLSFunction:
         for i in range(self.GKLS_num_minima):
             temp_min = GKLSFunction.GKLS_MAX_VALUE
             for j in range(self.GKLS_num_minima):
-                if (i != j):
-                    temp_d1 = self.GKLS_norm(self.GKLS_minima.local_min[i], self.GKLS_minima.local_min[j])
-                    if (temp_d1 < temp_min):
+                if i != j:
+                    temp_d1 = self.GKLS_norm(
+                        self.GKLS_minima.local_min[i], self.GKLS_minima.local_min[j]
+                    )
+                    if temp_d1 < temp_min:
                         temp_min = temp_d1
             dist = temp_min / 2.0
             self.GKLS_minima.rho[i] = dist
@@ -577,27 +668,36 @@ class GKLSFunction:
         # paraboloid vertex.                                                           #
         self.GKLS_minima.rho[1] = self.GKLS_global_radius
         for i in range(2, self.GKLS_num_minima):
-            dist = (self.GKLS_norm(self.GKLS_minima.local_min[i], self.GKLS_minima.local_min[
-                1]) - self.GKLS_global_radius - GKLSFunction.GKLS_PRECISION)
-            if (dist < self.GKLS_minima.rho[i]):
+            dist = (
+                self.GKLS_norm(
+                    self.GKLS_minima.local_min[i], self.GKLS_minima.local_min[1]
+                )
+                - self.GKLS_global_radius
+                - GKLSFunction.GKLS_PRECISION
+            )
+            if dist < self.GKLS_minima.rho[i]:
                 self.GKLS_minima.rho[i] = dist
 
         # Try to expand the attraction regions of local minimizers until they      #
         # do not overlap                                                           #
         for i in range(self.GKLS_num_minima):
-
-            if (i != 1):  # The radius of the attr. region of the global min is fixed  #
+            if i != 1:  # The radius of the attr. region of the global min is fixed  #
                 # rho(i) := max {rho(i),min[||M(i)-M(j)|| - rho(j): i !=j]},      #
                 temp_min = GKLSFunction.GKLS_MAX_VALUE
                 for j in range(self.GKLS_num_minima):
-                    if (i != j):
-                        temp_d1 = self.GKLS_norm(self.GKLS_minima.local_min[i], self.GKLS_minima.local_min[j]) - \
-                                  self.GKLS_minima.rho[j]
-                        if (temp_d1 < temp_min):
+                    if i != j:
+                        temp_d1 = (
+                            self.GKLS_norm(
+                                self.GKLS_minima.local_min[i],
+                                self.GKLS_minima.local_min[j],
+                            )
+                            - self.GKLS_minima.rho[j]
+                        )
+                        if temp_d1 < temp_min:
                             temp_min = temp_d1
 
                 # Increase the radius rho(i) if it is possible #
-                if (temp_min > self.GKLS_minima.rho[i] + GKLSFunction.GKLS_PRECISION):
+                if temp_min > self.GKLS_minima.rho[i] + GKLSFunction.GKLS_PRECISION:
                     self.GKLS_minima.rho[i] = temp_min
 
         # Correct the radii by weight coefficients w(i)                    #
@@ -605,7 +705,9 @@ class GKLSFunction:
         # here they are defined by default as:                             #
         #    w(i) = 0.99, i != 1 , and w(1) = 1.0 (global min index = 1)   #
         for i in range(self.GKLS_num_minima):
-            self.GKLS_minima.rho[i] = self.GKLS_minima.w_rho[i] * self.GKLS_minima.rho[i]
+            self.GKLS_minima.rho[i] = (
+                self.GKLS_minima.w_rho[i] * self.GKLS_minima.rho[i]
+            )
 
         # *******************************************************************#
         # Set the local minima values f(i) of test functions as follows:    #
@@ -631,14 +733,19 @@ class GKLSFunction:
             # Set values peak(i), i>= 2 #
             # Note that peak(i) is such that the function value f(i) is smaller#
             # than min(GKLS_GLOBAL_MIN_VALUE, 2*rho(i))                        #
-            temp_d1 = self.GKLS_norm(self.GKLS_minima.local_min[0], self.GKLS_minima.local_min[i])
+            temp_d1 = self.GKLS_norm(
+                self.GKLS_minima.local_min[0], self.GKLS_minima.local_min[i]
+            )
 
             # the conditional minimum at the boundary#
-            temp_min = (self.GKLS_minima.rho[i] - temp_d1) * \
-                       (self.GKLS_minima.rho[i] - temp_d1) + self.GKLS_minima.f[0]
+            temp_min = (self.GKLS_minima.rho[i] - temp_d1) * (
+                self.GKLS_minima.rho[i] - temp_d1
+            ) + self.GKLS_minima.f[0]
 
             temp_d1 = (1.0 + self.rnd_num[self.rnd_counter]) * self.GKLS_minima.rho[i]
-            temp_d2 = self.rnd_num[self.rnd_counter] * (temp_min - self.GKLS_global_value)
+            temp_d2 = self.rnd_num[self.rnd_counter] * (
+                temp_min - self.GKLS_global_value
+            )
             # temp_d1 := min(temp_d1, temp_d2) #
             if temp_d2 < temp_d1:
                 temp_d1 = temp_d2
@@ -660,29 +767,34 @@ class GKLSFunction:
         # *******************************************************************#
         self.GKLS_glob.num_global_minima = 0
         for i in range(self.GKLS_num_minima):
-            if ((self.GKLS_minima.f[i] >= self.GKLS_global_value - GKLSFunction.GKLS_PRECISION) and (
-                    self.GKLS_minima.f[i] <= self.GKLS_global_value + GKLSFunction.GKLS_PRECISION)):
-
+            if (
+                self.GKLS_minima.f[i]
+                >= self.GKLS_global_value - GKLSFunction.GKLS_PRECISION
+            ) and (
+                self.GKLS_minima.f[i]
+                <= self.GKLS_global_value + GKLSFunction.GKLS_PRECISION
+            ):
                 self.GKLS_glob.gm_index[self.GKLS_glob.num_global_minima] = i
                 self.GKLS_glob.num_global_minima += 1
                 # The first GKLS_glob.num_global_minima elements of the list    #
                 # contain the indices of the global minimizers                  #
 
             else:
-                self.GKLS_glob.gm_index[self.GKLS_num_minima - 1 - i + self.GKLS_glob.num_global_minima] = i
+                self.GKLS_glob.gm_index[
+                    self.GKLS_num_minima - 1 - i + self.GKLS_glob.num_global_minima
+                ] = i
         # The remaining elements of the list                            #
         # contain the indices of local (non global) minimizers          #
 
-        if (self.GKLS_glob.num_global_minima == 0):  # erroneous case:       #
+        if self.GKLS_glob.num_global_minima == 0:  # erroneous case:       #
             return GKLSFunction.GKLS_FLOATING_POINT_ERROR  # some programmer's error #
 
         return GKLSFunction.GKLS_OK
 
     def GKLS_domain_alloc(self):
-
         i = 0
 
-        if ((self.GKLS_dim <= 1) or (self.GKLS_dim >= GKLSRandomGenerator.NUM_RND)):
+        if (self.GKLS_dim <= 1) or (self.GKLS_dim >= GKLSRandomGenerator.NUM_RND):
             return GKLSFunction.GKLS_DIM_ERROR  # problem dimension error */
         self.GKLS_domain_left = np.zeros(self.GKLS_dim, dtype=np.double)
         self.GKLS_domain_right = np.zeros(self.GKLS_dim, dtype=np.double)
@@ -706,7 +818,7 @@ class GKLSFunction:
         return self.GKLS_global_value
 
     def GetOptimumPoint(self):
-        if (self.isArgSet == 1):
+        if self.isArgSet == 1:
             argmin = self.GKLS_minima.local_min[self.GKLS_glob.gm_index[0]]
             return argmin
         return -1

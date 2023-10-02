@@ -1,26 +1,27 @@
 from modules.evolvent.evolvent import Evolvent
+from modules.utility.interval import Interval
 from modules.utility.parameters import Parameters
 from modules.utility.point import Point
-from modules.utility.interval import Interval
 from modules.utility.problem import Problem
 
 
 class Method:
-    def __init__(self,
-                 problem: Problem,
-                 parameters: Parameters):
+    def __init__(self, problem: Problem, parameters: Parameters):
         self.problem: Problem = problem
-        self.evolvent: Evolvent = Evolvent(problem.lower_bound, problem.upper_bound,
-                                           problem.dim,
-                                           parameters.evolvent_density)
+        self.evolvent: Evolvent = Evolvent(
+            problem.lower_bound,
+            problem.upper_bound,
+            problem.dim,
+            parameters.evolvent_density,
+        )
         self.r = parameters.r
         self.m: float = 1
-        self.optimum: float = float('inf')
+        self.optimum: float = float("inf")
 
     def update_holder_const(self, m: float) -> bool:
         is_update = m > self.m
         self.m = m if is_update else self.m
-        return is_update        
+        return is_update
 
     def update_optimum(self, point: Point) -> bool:
         is_update = point.z < self.optimum
@@ -44,8 +45,11 @@ class Method:
         z_opt = self.optimum
         m = self.m
         r = self.r
-        return (delta + (rz - lz) * (rz - lz) / (r * r * m * m * delta) -
-                2 * (rz + lz - 2 * z_opt) / (r * m))
+        return (
+            delta
+            + (rz - lz) * (rz - lz) / (r * r * m * m * delta)
+            - 2 * (rz + lz - 2 * z_opt) / (r * m)
+        )
 
     def next_point_coordinate(self, interval: Interval) -> float:
         n = self.problem.dim
@@ -66,11 +70,9 @@ class Method:
         n = self.problem.dim
         return (rx - lx) ** (1 / n)
 
-    def split_interval(self,
-                       interval: Interval,
-                       point: Point
-                       ) -> tuple[Interval, Interval]:
-
+    def split_interval(
+        self, interval: Interval, point: Point
+    ) -> tuple[Interval, Interval]:
         left_interval = Interval(point)
         left_interval.left = interval.left
         interval.left = left_interval.right
@@ -101,5 +103,3 @@ class Method:
             y = self.evolvent.get_image(x)
             points.append(Point(x, y))
         return points
-
-

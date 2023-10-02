@@ -1,4 +1,5 @@
 from ctypes import *
+
 import numpy as np
 
 
@@ -15,15 +16,15 @@ class Evolvent:
     :type  evolventDensity: int
     """
 
-    lib = CDLL('modules/evolvent/ctypes/lib/evolvent.dll')
+    lib = CDLL("modules/evolvent/ctypes/lib/evolvent.dll")
 
-    def __init__(self,
-                 lowerBoundOfFloatVariables: np.ndarray(shape=(1), dtype=np.double) = [],
-                 upperBoundOfFloatVariables: np.ndarray(shape=(1), dtype=np.double) = [],
-                 numberOfFloatVariables: int = 1,
-                 evolventDensity: int = 10
-                 ):
-
+    def __init__(
+        self,
+        lowerBoundOfFloatVariables: np.ndarray(shape=(1), dtype=np.double) = [],
+        upperBoundOfFloatVariables: np.ndarray(shape=(1), dtype=np.double) = [],
+        numberOfFloatVariables: int = 1,
+        evolventDensity: int = 10,
+    ):
         self.numberOfFloatVariables = numberOfFloatVariables
         self.lowerBoundOfFloatVariables = np.copy(lowerBoundOfFloatVariables)
         self.upperBoundOfFloatVariables = np.copy(upperBoundOfFloatVariables)
@@ -31,12 +32,14 @@ class Evolvent:
 
         self.yValues = np.zeros(self.numberOfFloatVariables, dtype=np.double)
 
-        Evolvent.lib.getYonX.argtypes = [np.ctypeslib.ndpointer(np.double, ndim=1, flags='C'), c_size_t,
-                                         c_int, c_double]
+        Evolvent.lib.getYonX.argtypes = [
+            np.ctypeslib.ndpointer(np.double, ndim=1, flags="C"),
+            c_size_t,
+            c_int,
+            c_double,
+        ]
 
-    def GetImage(self,
-                 x: np.double
-                 ) -> np.ndarray(shape=(1), dtype=np.double):
+    def GetImage(self, x: np.double) -> np.ndarray(shape=(1), dtype=np.double):
         """Получить образ (x->y)
 
         :param x: значение x.
@@ -56,11 +59,22 @@ class Evolvent:
             return self.yValues
 
         self.yValues = np.zeros(self.numberOfFloatVariables, dtype=np.double)
-        Evolvent.lib.getYonX(self.yValues, self.numberOfFloatVariables, self.evolventDensity, x)
+        Evolvent.lib.getYonX(
+            self.yValues, self.numberOfFloatVariables, self.evolventDensity, x
+        )
         return np.copy(self.yValues)
 
     def __TransformP2D(self):
         for i in range(0, self.numberOfFloatVariables):
-            self.yValues[i] = self.yValues[i] * (
-                    self.upperBoundOfFloatVariables[i] - self.lowerBoundOfFloatVariables[i]) + \
-                              (self.upperBoundOfFloatVariables[i] + self.lowerBoundOfFloatVariables[i]) / 2
+            self.yValues[i] = (
+                self.yValues[i]
+                * (
+                    self.upperBoundOfFloatVariables[i]
+                    - self.lowerBoundOfFloatVariables[i]
+                )
+                + (
+                    self.upperBoundOfFloatVariables[i]
+                    + self.lowerBoundOfFloatVariables[i]
+                )
+                / 2
+            )

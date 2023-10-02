@@ -5,7 +5,6 @@ from mpi4py import MPI
 from modules.solve import solve
 from problems.gkls.gkls import GKLS
 
-
 if __name__ == "__main__":
     r = 4
     eps = 0.01

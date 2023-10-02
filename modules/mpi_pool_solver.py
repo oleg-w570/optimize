@@ -1,10 +1,12 @@
-from time import perf_counter
-from modules.utility.interval import Interval
-from modules.utility.point import Point
-from modules.core.solver_base import SolverBase
 from itertools import chain
+from time import perf_counter
+
 from mpi4py import MPI
 from pathos.pools import ProcessPool
+
+from modules.core.solver_base import SolverBase
+from modules.utility.interval import Interval
+from modules.utility.point import Point
 
 
 class MPIPoolSolver(SolverBase):
