@@ -1,3 +1,4 @@
+from modules.async_solver import AsyncSolver
 from modules.mpi_pool_solver import MPIPoolSolver
 from modules.mpi_solver import MPISolver
 from modules.pool_solver import PoolSolver
@@ -24,6 +25,8 @@ def solve(problem: Problem, *,
             solver = MPISolver(problem, stop, param)
         case 'mpipool':
             solver = MPIPoolSolver(problem, stop, param)
+        case 'async':
+            solver = AsyncSolver(problem, stop, param)
         case _:
             print('Wrong algorithm')
             return Solution()

@@ -3,7 +3,7 @@ from problems.gkls.gkls import GKLS
 
 
 if __name__ == "__main__":
-    problem = GKLS(92)
+    problem = GKLS(16)
     print(problem)
     print(
         solve(problem,
