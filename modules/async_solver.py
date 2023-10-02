@@ -1,113 +1,126 @@
 from multiprocessing import Process, Queue
 from time import perf_counter
-
-from modules.core.method import Method
+from modules.core.solver_base import SolverBase
 from modules.utility.interval import Interval
 from modules.utility.parameters import Parameters
-from modules.core.solver import Solver
+from modules.utility.point import Point
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
 
 
 class Worker(Process):
-    def __init__(self,
-                 method: Method,
-                 tasks: Queue,
-                 done: Queue):
+    def __init__(self, problem: Problem, task_queue: Queue, done_queue: Queue):
         super().__init__()
-        self.method: Method = method
-        self.tasks = tasks
-        self.done = done
+        self.problem = problem
+        self.task_queue = task_queue
+        self.done_queue = done_queue
 
     def run(self) -> None:
-        for intrvl, m, optimum in iter(self.tasks.get, 'STOP'):
-            self.method.m = m
-            self.method.optimum = optimum
-            point = self.method.next_point(intrvl)
-            new_intrvls = self.method.split_interval(intrvl, point)
-            new_r = map(self.method.characteristic, new_intrvls)
-            new_m = map(self.method.holder_const, new_intrvls)
-            self.done.put_nowait((new_m, new_r, new_intrvls))
+        for point in iter(self.task_queue.get, "STOP"):
+            point.z = self.problem.calculate(point.y)
+            self.done_queue.put_nowait(point)
 
 
-class AsyncSolver(Solver):
-    def __init__(self,
-                 problem: Problem,
-                 stopcondition: StopCondition = ...,
-                 parameters: Parameters = ...):
+class AsyncSolver(SolverBase):
+    def __init__(
+        self, problem: Problem, stopcondition: StopCondition, parameters: Parameters
+    ):
         super().__init__(problem, stopcondition, parameters)
-        self.tasks: Queue = Queue()
-        self.done: Queue = Queue()
-        self.workers: list[Worker] = [Worker(self.method, self.tasks, self.done)
-                                      for _ in range(self.num_proc)]
+        self.task_queue: Queue = Queue()
+        self.done_queue: Queue = Queue()
+        self.workers: list[Worker] = [
+            Worker(self.problem, self.task_queue, self.done_queue)
+            for _ in range(self.num_proc)
+        ]
 
     def solve(self):
         self.first_iteration()
-        self.sequential_iterations_for_begin()  # вычислим нужное количество интервалов, чтобы загрузить работой все процессы
-        self.start_workers()  # стартуем все процессы и передаём каждому по интервалу
-        mindelta: float = float('inf')
+        self.start_workers()
+        self.iterations_to_begin()
+        number_finished_proc = self.num_proc
+        waiting_intrvls: list[Interval] = []
+        mindelta: float = float("inf")
         niter: int = 0
         start_time = perf_counter()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
-            new_m, new_r, new_intrvls = self.done.get()  # обязательно ждём, что один процесс завершит обработку интервала и вернёт результат
-            for trial in zip(new_r, new_intrvls):  # здесь и далее идёт обработка полученных данных
-                self.trial_data.insert(*trial)
-            point = new_intrvls[0].right
+            old_intrvls = self.trial_data.get_n_intrvls_with_max_r(number_finished_proc)
+            points: list[Point] = list(map(self.method.next_point, old_intrvls))
+            for point in points:
+                self.task_queue.put_nowait(point)
+            waiting_intrvls.extend(old_intrvls)
+            point = self.done_queue.get()
+            old_intrvl = self.find_interval(point, waiting_intrvls)
+            new_intrvls = self.method.split_interval(old_intrvl, point)
+            new_m = map(self.method.holder_const, new_intrvls)
             self.recalc |= self.method.update_holder_const(max(new_m))
             self.recalc |= self.method.update_optimum(point)
-            released_process = 1  # ставим счётчик процессов, завершивших работу на текущей итерации
-            while not self.done.empty():  # далее проверяем очередь готовых данных, так же обрабатываем их, и увеличиваем счётчик
-                new_m, new_r, new_intrvls = self.done.get()
-                for trial in zip(new_r, new_intrvls):
-                    self.trial_data.insert(*trial)
-                point = new_intrvls[0].right
+            new_r = map(self.method.characteristic, new_intrvls)
+            for trial in zip(new_r, new_intrvls):
+                self.trial_data.insert(*trial)
+            number_finished_proc = 1
+            while not self.done_queue.empty():
+                point = self.done_queue.get()
+                old_intrvl = self.find_interval(point, waiting_intrvls)
+                new_intrvls = self.method.split_interval(old_intrvl, point)
+                new_m = map(self.method.holder_const, new_intrvls)
                 self.recalc |= self.method.update_holder_const(max(new_m))
                 self.recalc |= self.method.update_optimum(point)
-                released_process += 1
-            self.recalculate()  # проверяем нужно ли пересчитать характеристики всех интервалов
-            old_intrvls = self.get_n_intrvls_with_max_r(released_process)  # выдаём интервалы с макс характеристикой столько, сколько завершило работу процессов на текущей итерации
-            mindelta = min(old_intrvls, key=lambda x: x.delta).delta
-            for old_intrvl in old_intrvls:
-                self.tasks.put_nowait((old_intrvl, self.method.m, self.method.optimum))  # также передаём процессам текущие оценку конст Л. и оптимума
+                new_r = map(self.method.characteristic, new_intrvls)
+                for trial in zip(new_r, new_intrvls):
+                    self.trial_data.insert(*trial)
+                number_finished_proc += 1
+            self.recalc_characteristics()
+            mindelta = min(map(lambda i: i.delta, old_intrvls))
             niter += 1
-            # print(released_process)
         self._solution.time = perf_counter() - start_time
-        self.stop_workers()
+        self.stop_workers(waiting_intrvls)
         self._solution.accuracy = mindelta
         self._solution.niter = niter
 
     def start_workers(self) -> None:
         for w in self.workers:
             w.start()
-        for _ in range(self.num_proc):
-            self.tasks.put_nowait((self.trial_data.get_intrvl_with_max_r(),
-                                   self.method.m, self.method.optimum))
 
-    def stop_workers(self) -> None:
+    def stop_workers(self, waiting_intrvls: list[Interval]) -> None:
         for _ in range(self.num_proc):
-            self.tasks.put_nowait('STOP')
-        while not self.done.empty():
-            _, new_r, new_intrvls = self.done.get()
-            for trial in zip(new_r, new_intrvls):
-                self.trial_data.insert(*trial)
+            self.task_queue.put_nowait("STOP")
         for w in self.workers:
-            w.terminate()
-
-    def sequential_iterations_for_begin(self):
-        for _ in range(self.num_proc - 1):
-            old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
-            point = self.method.next_point(old_intrvl)
-            new_intrvl = self.method.split_interval(old_intrvl, point)
-            new_m = map(self.method.holder_const, new_intrvl)
+            w.join()
+        while not self.done_queue.empty():
+            point = self.done_queue.get()
+            old_intrvl = self.find_interval(point, waiting_intrvls)
+            new_intrvls = self.method.split_interval(old_intrvl, point)
+            new_m = map(self.method.holder_const, new_intrvls)
             self.recalc |= self.method.update_holder_const(max(new_m))
             self.recalc |= self.method.update_optimum(point)
-            self.recalculate()
-            new_r = map(self.method.characteristic, new_intrvl)
-            for trial in zip(new_r, new_intrvl):
+            new_r = map(self.method.characteristic, new_intrvls)
+            for trial in zip(new_r, new_intrvls):
                 self.trial_data.insert(*trial)
 
-    def get_n_intrvls_with_max_r(self, n: int) -> list[Interval]:
-        intrvls = []
-        for _ in range(n):
-            intrvls.append(self.trial_data.get_intrvl_with_max_r())
-        return intrvls
+    def iterations_to_begin(self):
+        points = self.method.evenly_points(self.num_proc)
+        for point in points:
+            self.task_queue.put_nowait(point)
+        points = []
+        for _ in range(self.num_proc - 1):
+            point = self.done_queue.get()
+            points.append(point)
+        points.sort(key=lambda p: p.x)
+        self.method.update_optimum(min(points))
+        intrvls: list[Interval] = []
+        right_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
+        for point in points:
+            left_intrvl, right_intrvl = self.method.split_interval(right_intrvl, point)
+            intrvls.append(left_intrvl)
+        intrvls.append(right_intrvl)
+        m = map(self.method.holder_const, intrvls)
+        self.method.update_holder_const(max(m))
+        r = map(self.method.characteristic, intrvls)
+        for trial in zip(r, intrvls):
+            self.trial_data.insert(*trial)
+
+    @staticmethod
+    def find_interval(point: Point, intervals: list[Interval]) -> Interval:
+        for i, interval in enumerate(intervals):
+            if interval.left.x < point.x < interval.right.x:
+                return intervals.pop(i)
