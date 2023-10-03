@@ -27,4 +27,4 @@ if __name__ == "__main__":
         tsp_matrix, num_iteration, mutation_probability_bound, population_size_bound
     )
     print(problem)
-    print(solve(problem, r=4, eps=0.01, alg="async"))
+    print(solve(problem, r=2, eps=0.01, alg="async", num_proc=4))

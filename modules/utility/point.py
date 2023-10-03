@@ -6,3 +6,6 @@ class Point:
 
     def __lt__(self, other):
         return self.z < other.z
+
+    def __repr__(self):
+        return f'x={self.x}, y={self.y}, z={self.z}'
