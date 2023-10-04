@@ -4,7 +4,6 @@ from time import perf_counter
 from modules.core.solver_base import SolverBase
 from modules.utility.interval import Interval
 from modules.utility.parameters import Parameters
-from modules.utility.point import Point
 from modules.utility.problem import Problem
 from modules.utility.stopcondition import StopCondition
 
@@ -24,7 +23,7 @@ class Worker(Process):
 
 class AsyncSolver(SolverBase):
     def __init__(
-        self, problem: Problem, stopcondition: StopCondition, parameters: Parameters
+            self, problem: Problem, stopcondition: StopCondition, parameters: Parameters
     ):
         super().__init__(problem, stopcondition, parameters)
         self.task_queue: Queue = Queue()
@@ -37,20 +36,20 @@ class AsyncSolver(SolverBase):
     def solve(self):
         self.first_iteration()
         self.start_workers()
-        number_finished_proc = self.num_proc
-        waiting_intrvls: list[Interval] = []
+        waiting_workers = self.num_proc
+        waiting_intrvls: dict[float, Interval] = dict()
         mindelta: float = float("inf")
         niter: int = self.num_proc
         start_time = perf_counter()
         self.iterations_to_begin()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
-            old_intrvls = self.trial_data.get_n_intrvls_with_max_r(number_finished_proc)
-            points: list[Point] = list(map(self.method.next_point, old_intrvls))
-            for point in points:
+            old_intrvls = self.trial_data.get_n_intrvls_with_max_r(waiting_workers)
+            for old_intrvl in old_intrvls:
+                point = self.method.next_point(old_intrvl)
+                waiting_intrvls[point.x] = old_intrvl
                 self.task_queue.put_nowait(point)
-            waiting_intrvls.extend(old_intrvls)
             point = self.done_queue.get()
-            old_intrvl = self.find_interval(point, waiting_intrvls)
+            old_intrvl = waiting_intrvls[point.x]
             new_intrvls = self.method.split_interval(old_intrvl, point)
             new_m = map(self.method.holder_const, new_intrvls)
             self.recalc |= self.method.update_holder_const(max(new_m))
@@ -58,10 +57,10 @@ class AsyncSolver(SolverBase):
             new_r = map(self.method.characteristic, new_intrvls)
             for trial in zip(new_r, new_intrvls):
                 self.trial_data.insert(*trial)
-            number_finished_proc = 1
+            waiting_workers = 1
             while not self.done_queue.empty():
                 point = self.done_queue.get()
-                old_intrvl = self.find_interval(point, waiting_intrvls)
+                old_intrvl = waiting_intrvls[point.x]
                 new_intrvls = self.method.split_interval(old_intrvl, point)
                 new_m = map(self.method.holder_const, new_intrvls)
                 self.recalc |= self.method.update_holder_const(max(new_m))
@@ -69,9 +68,9 @@ class AsyncSolver(SolverBase):
                 new_r = map(self.method.characteristic, new_intrvls)
                 for trial in zip(new_r, new_intrvls):
                     self.trial_data.insert(*trial)
-                number_finished_proc += 1
+                waiting_workers += 1
             self.recalc_characteristics()
-            mindelta = min(map(lambda i: i.delta, old_intrvls))
+            mindelta = min([item.delta for item in old_intrvls])
             niter += 1
         self._solution.time = perf_counter() - start_time
         self.stop_workers(waiting_intrvls)
@@ -82,14 +81,14 @@ class AsyncSolver(SolverBase):
         for w in self.workers:
             w.start()
 
-    def stop_workers(self, waiting_intrvls: list[Interval]) -> None:
+    def stop_workers(self, waiting_intrvls: dict[float, Interval]) -> None:
         for _ in range(self.num_proc):
             self.task_queue.put_nowait("STOP")
         for w in self.workers:
             w.join()
         while not self.done_queue.empty():
             point = self.done_queue.get()
-            old_intrvl = self.find_interval(point, waiting_intrvls)
+            old_intrvl = waiting_intrvls[point.x]
             new_intrvls = self.method.split_interval(old_intrvl, point)
             new_m = map(self.method.holder_const, new_intrvls)
             self.recalc |= self.method.update_holder_const(max(new_m))
@@ -119,9 +118,3 @@ class AsyncSolver(SolverBase):
         r = map(self.method.characteristic, intrvls)
         for trial in zip(r, intrvls):
             self.trial_data.insert(*trial)
-
-    @staticmethod
-    def find_interval(point: Point, intervals: list[Interval]) -> Interval:
-        for i, interval in enumerate(intervals):
-            if interval.left.x < point.x < interval.right.x:
-                return intervals.pop(i)

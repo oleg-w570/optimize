@@ -6,7 +6,7 @@ from problems.gkls.gkls import GKLS
 if __name__ == "__main__":
     r = 4
     eps = 0.01
-    n = 8
+    n = 16
     solution_time = []
     for i in range(1, 101):
         problem = GKLS(i)
