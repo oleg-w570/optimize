@@ -22,5 +22,5 @@ class GKLS(Problem):
 
     def calculate(self, point: list[float]) -> float:
         value = self.function.Calculate(point)
-        sleep(0.01)
+        # sleep(0.01)
         return value
