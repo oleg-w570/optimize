@@ -15,7 +15,7 @@ class Method:
             parameters.evolvent_density,
         )
         self.r = parameters.r
-        self.m: float = 1
+        self.m: float = 1.0
         self.optimum: float = float("inf")
 
     def update_holder_const(self, m: float) -> bool:
@@ -34,8 +34,6 @@ class Method:
         lz = interval.left.z
         delta = interval.delta
         m = abs(rz - lz) / delta
-        if m < 1e-16:
-            return 1
         return m
 
     def characteristic(self, interval: Interval) -> float:

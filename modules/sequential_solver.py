@@ -13,6 +13,7 @@ class SequentialSolver(SolverBase):
         start_time = perf_counter()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
             old_intrvl: Interval = self.trial_data.get_intrvl_with_max_r()
+            mindelta = old_intrvl.delta
 
             point: Point = self.method.next_point(old_intrvl)
             point.z = self.problem.calculate(point.y)
@@ -27,7 +28,6 @@ class SequentialSolver(SolverBase):
             for trial in zip(new_r, new_intrvls):
                 self.trial_data.insert(*trial)
 
-            mindelta = old_intrvl.delta
             niter += 1
         self._solution.time = perf_counter() - start_time
         self._solution.accuracy = mindelta

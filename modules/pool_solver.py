@@ -51,6 +51,7 @@ class PoolSolver(SolverBase):
         self.iterations_to_begin()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
             old_intrvls = self.trial_data.get_n_intrvls_with_max_r(self.num_proc)
+            mindelta = min(map(lambda i: i.delta, old_intrvls))
 
             points: list[Point] = list(map(self.method.next_point, old_intrvls))
             self.func_value_for_points(points)
@@ -67,7 +68,6 @@ class PoolSolver(SolverBase):
             for trial in zip(new_r, new_intrvls):
                 self.trial_data.insert(*trial)
 
-            mindelta = min(map(lambda i: i.delta, old_intrvls))
             niter += 1
         self._solution.time = perf_counter() - start_time
         self._solution.accuracy = mindelta

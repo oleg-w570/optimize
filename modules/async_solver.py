@@ -44,6 +44,7 @@ class AsyncSolver(SolverBase):
         self.iterations_to_begin()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
             old_intrvls = self.trial_data.get_n_intrvls_with_max_r(waiting_workers)
+            mindelta = min([item.delta for item in old_intrvls])
             for old_intrvl in old_intrvls:
                 point = self.method.next_point(old_intrvl)
                 waiting_intrvls[point.x] = old_intrvl
@@ -70,7 +71,6 @@ class AsyncSolver(SolverBase):
                     self.trial_data.insert(*trial)
                 waiting_workers += 1
             self.recalc_characteristics()
-            mindelta = min([item.delta for item in old_intrvls])
             niter += 1
         self._solution.time = perf_counter() - start_time
         self.stop_workers(waiting_intrvls)
