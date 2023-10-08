@@ -39,7 +39,7 @@ class AsyncSolver(SolverBase):
         waiting_workers = self.num_proc
         waiting_intrvls: dict[float, Interval] = dict()
         mindelta: float = float("inf")
-        niter: int = self.num_proc
+        niter: int = self.num_proc - 1
         start_time = perf_counter()
         self.iterations_to_begin()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
@@ -71,7 +71,7 @@ class AsyncSolver(SolverBase):
                     self.trial_data.insert(*trial)
                 waiting_workers += 1
             self.recalc_characteristics()
-            niter += 1
+            niter += waiting_workers
         self._solution.time = perf_counter() - start_time
         self.stop_workers(waiting_intrvls)
         self._solution.accuracy = mindelta
