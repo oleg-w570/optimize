@@ -1,7 +1,7 @@
 from itertools import chain
+# from pathos.pools import ProcessPool
+from multiprocessing import Pool as ProcessPool
 from time import perf_counter
-
-from pathos.pools import ProcessPool
 
 from modules.core.calculator import Calculator
 from modules.core.solver_base import SolverBase
@@ -14,7 +14,7 @@ from modules.utility.stopcondition import StopCondition
 
 class PoolSolver(SolverBase):
     def __init__(
-        self, problem: Problem, stopcondition: StopCondition, parameters: Parameters
+            self, problem: Problem, stopcondition: StopCondition, parameters: Parameters
     ):
         super().__init__(problem, stopcondition, parameters)
         self.pool = ProcessPool(
@@ -46,12 +46,12 @@ class PoolSolver(SolverBase):
     def solve(self):
         self.first_iteration()
         mindelta: float = float("inf")
-        niter: int = self.num_proc
+        niter: int = self.num_proc - 1
         start_time = perf_counter()
         self.iterations_to_begin()
         while mindelta > self.stop.eps and niter < self.stop.maxiter:
             old_intrvls = self.trial_data.get_n_intrvls_with_max_r(self.num_proc)
-            mindelta = min(map(lambda i: i.delta, old_intrvls))
+            mindelta = min([item.delta for item in old_intrvls])
 
             points: list[Point] = list(map(self.method.next_point, old_intrvls))
             self.func_value_for_points(points)
@@ -68,7 +68,7 @@ class PoolSolver(SolverBase):
             for trial in zip(new_r, new_intrvls):
                 self.trial_data.insert(*trial)
 
-            niter += 1
+            niter += self.num_proc
         self._solution.time = perf_counter() - start_time
         self._solution.accuracy = mindelta
         self._solution.niter = niter
