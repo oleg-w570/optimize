@@ -9,15 +9,9 @@ from modules.utility.solution import Solution
 from modules.utility.stopcondition import StopCondition
 
 
-def solve(
-    problem: Problem,
-    *,
-    eps: float = 0.01,
-    max_iter: int = 100000,
-    alg: str = "seq",
-    num_proc: int = 1,
-    r: float = 4,
-) -> Solution:
+def solve(problem: Problem, *,
+          r: float = 4, eps: float = 0.01, max_iter: int = 100000,
+          alg: str = "seq", num_proc: int = 1) -> Solution:
     stop = StopCondition(eps, max_iter)
     param = Parameters(r, num_proc)
     match alg:
