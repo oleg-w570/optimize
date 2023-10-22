@@ -1,7 +1,7 @@
+import xml.etree.ElementTree as ET
 from statistics import mean
 
 import numpy as np
-import xml.etree.ElementTree as ET
 import pandas as pd
 
 from modules.solve import solve
@@ -98,8 +98,8 @@ def format_data(data, launches):
     df = df.rename(columns={
         'GKLS (eps)': 'GKLS (с задержкой в функции 0.01 сек.)\nПараметр метода r=4\nОстановка по точности eps=0.01',
         'GKLS (iter)': "GKLS (с задержкой в функции 0.01 сек.)\nПараметр метода r=4\nОстановка по числу испытаний 1000",
-        'TSP_2D': "TSP_2D\nПараметр метода r=4\nОстановка по числу испытаний 200",
-        'SVC_2D': "SVC_2D\nПараметр метода r=4\nОстановка по числу испытаний 1000",
+        'TSP_2D': f"TSP_2D\nПараметр метода r=4\nОстановка по числу испытаний 200\n{num_launches} запусков",
+        'SVC_2D': f"SVC_2D\nПараметр метода r=4\nОстановка по числу испытаний 1000\n{num_launches} запусков",
         'time': 'Среднее время вычисления (сек.)',
         'value': 'Средний результат'
     })
@@ -107,10 +107,14 @@ def format_data(data, launches):
     for i, launch in enumerate(launches):
         alg, n = launch
         match alg:
-            case 'seq': name = 'Последовательная'
-            case 'pool': name = 'Параллельная синхронная'
-            case 'async': name = 'Параллельная асинхронная'
-            case _: name = ''
+            case 'seq':
+                name = 'Последовательная'
+            case 'pool':
+                name = 'Параллельная синхронная'
+            case 'async':
+                name = 'Параллельная асинхронная'
+            case _:
+                name = ''
         index_names[i] = f'{name}\nЧисло процессов: {n}'
     df = df.rename(index=index_names)
     return df
