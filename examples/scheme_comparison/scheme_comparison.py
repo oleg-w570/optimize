@@ -74,7 +74,7 @@ def calculate_data(launches):
     name = 'TSP_2D'
     data[(name, 'time')] = []
     data[(name, 'value')] = []
-    tsp_matrix = load_tsp_matrix("../a280.xml")
+    tsp_matrix = load_tsp_matrix("../../a280.xml")
     num_iteration = 200
     mutation_probability_bound = {"low": 0.0, "up": 1.0}
     population_size_bound = {"low": 10.0, "up": 100.0}
@@ -100,8 +100,8 @@ def format_data(data, launches):
         'GKLS (iter)': "GKLS (с задержкой в функции 0.01 сек.)\nПараметр метода r=4\nОстановка по числу испытаний 1000",
         'TSP_2D': "TSP_2D\nПараметр метода r=4\nОстановка по числу испытаний 200",
         'SVC_2D': "SVC_2D\nПараметр метода r=4\nОстановка по числу испытаний 1000",
-        'time': 'Время вычисления (сек.)',
-        'value': 'Результат'
+        'time': 'Среднее время вычисления (сек.)',
+        'value': 'Средний результат'
     })
     index_names = {}
     for i, launch in enumerate(launches):
@@ -131,7 +131,7 @@ def main():
     launches = create_launches()
     data = calculate_data(launches)
     data = format_data(data, launches)
-    data.to_excel('results/benchmark.xlsx', float_format='%.3f')
+    data.to_excel('scheme_comparison.xlsx', float_format='%.3f')
 
 
 if __name__ == '__main__':
