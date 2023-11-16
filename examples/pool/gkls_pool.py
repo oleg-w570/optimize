@@ -3,6 +3,6 @@ from problems.gkls.gkls import GKLS
 
 
 if __name__ == "__main__":
-    problem = GKLS(1)
+    problem = GKLS(17)
     print(problem)
-    print(solve(problem, r=4.05, eps=0.01, alg="pool", num_proc=4))
+    print(solve(problem, r=4.05, eps=0.01, alg="pool", num_proc=2))

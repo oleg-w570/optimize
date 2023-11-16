@@ -1,6 +1,6 @@
 from itertools import chain
-# from pathos.pools import ProcessPool
-from multiprocessing import Pool as ProcessPool
+
+from multiprocessing import Pool
 from time import perf_counter
 
 from modules.core.calculator import Calculator
@@ -14,10 +14,10 @@ from modules.utility.stopcondition import StopCondition
 
 class PoolSolver(SolverBase):
     def __init__(
-            self, problem: Problem, stopcondition: StopCondition, parameters: Parameters
+        self, problem: Problem, stopcondition: StopCondition, parameters: Parameters
     ):
         super().__init__(problem, stopcondition, parameters)
-        self.pool = ProcessPool(
+        self.pool = Pool(
             self.num_proc, initializer=Calculator.worker_init, initargs=(self.problem,)
         )
 
